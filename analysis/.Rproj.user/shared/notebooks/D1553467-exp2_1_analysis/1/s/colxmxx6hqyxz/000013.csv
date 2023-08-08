@@ -1,7 +1,0 @@
-"0","fit.trial_type_correct_set %>% 
-  emmeans(specs = pairwise ~ trial_type,
-          adjust = ""none"")
-"
-"2","Error in .chk.list(object, ...) : 
-  object 'fit.trial_type_correct_set' not found
-"

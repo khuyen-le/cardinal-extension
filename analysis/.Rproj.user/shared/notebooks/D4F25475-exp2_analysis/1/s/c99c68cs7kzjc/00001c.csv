@@ -1,3 +1,0 @@
-"0","df.trial %>%"
-"0","  count(set_chosen) %>%"
-"0","  knitr::kable()"

@@ -1,4 +1,0 @@
-"0",""
-"0","df.ppt %>%"
-"0","  count(gender) %>%"
-"0","  knitr::kable()"

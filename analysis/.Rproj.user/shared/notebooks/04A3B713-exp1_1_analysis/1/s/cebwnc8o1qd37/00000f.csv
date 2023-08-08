@@ -1,3 +1,0 @@
-"0","# df.trial <- df.trial %>%"
-"0","#   mutate(correct_count_no_na = ifelse(is.na(correct_count), 0, 1), "
-"0","#          correct_count_approx_no_na = ifelse(is.na(correct_count_approx), 0, 1)) "

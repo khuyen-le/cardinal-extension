@@ -1,4 +1,0 @@
-"0",""
-"0","df.trial %>%"
-"0","  count(correct_count) %>%"
-"0","  knitr::kable()"
