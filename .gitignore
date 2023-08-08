@@ -1,4 +1,6 @@
 background/*
 slides/*
 stimuli/*
-*/rsconnect/*
+*rsconnect*
+*.DS_Store
+*.Rproj.user*
