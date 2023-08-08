@@ -1,0 +1,78 @@
+---
+title: "Preprocessing"
+output: html_document
+date: "2023-03-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('tidyverse')
+library("purrr")
+library("uuid")
+library('lubridate')
+```
+
+```{r get data}
+df.load_raw_exp1 <- read.csv('../../../data/pilot/RAW_DATA/pilot_exp1.csv')
+```
+
+```{r create participant files}
+df.raw_exp1 <- df.load_raw_exp1 %>%
+  group_by(pid) %>%
+  mutate(id = UUIDgenerate()) %>%
+  ungroup() %>%
+  select(id, dot, dob, gender, primary_lang, is_bilingual,
+         stim_set, highest_count, knower_level, 
+         trial, set_chosen, count, set_asked, n_bunnies, n_lions) %>%
+  mutate(age_months = interval(mdy(dob), mdy(dot)) %/% months(1), 
+         age_years = interval(mdy(dob), mdy(dot)) %/% years(1)) %>%
+  mutate(knower_level_cp_subset = ifelse(knower_level == "CP", "CP", "subset"))
+
+df.ppt <- df.raw_exp1 %>% 
+  group_by(id, age_months, age_years, gender, primary_lang, is_bilingual,
+           stim_set, highest_count, knower_level, knower_level_cp_subset) %>%
+  summarise()
+
+write.csv(df.ppt, "../../../data/pilot/PROCESSED_DATA/pilot_exp1_ppt.csv", row.names = FALSE)
+```
+
+```{r crete trial files}
+df.trial <- df.raw_exp1 %>% 
+  select(id, age_months, age_years, 
+         stim_set, highest_count, knower_level, knower_level_cp_subset,
+         trial, set_chosen, count, set_asked, n_bunnies, n_lions) %>%
+  mutate(count = as.numeric(count)) %>%
+  #remove for actual data
+  mutate(magnitude = case_when(
+    n_bunnies <= 4 ~ "small", 
+    n_bunnies >= 5 ~ "large"
+  )) %>%
+  rowwise() %>%
+  mutate(trial_ratio = paste(sort(c(n_bunnies, n_lions)), collapse = "-")) %>%
+  mutate(correct_set_chosen =  case_when(
+           set_asked == set_chosen ~ 1,
+           set_asked != set_chosen ~ 0, 
+           is.na(set_chosen) ~ 0,
+         ),
+         correct_count = case_when(
+           is.na(count) ~ 0,
+           set_asked == "bunny" & count == n_bunnies ~ 1,
+           set_asked == "bunny" & count != n_bunnies ~ 0,
+           set_asked == "lion" & count == n_lions ~ 1,
+           set_asked == "lion" & count != n_lions ~ 0,
+         ), 
+         count_error = case_when(
+           set_asked == "bunny" & !is.na(count) ~ count - n_bunnies,
+           set_asked == "lion" & !is.na(count) ~ count - n_lions, 
+         ), 
+         correct_count_approx = case_when(
+           is.na(count) ~ 0, 
+           count_error >= -1 & count_error <= 1 ~ 1, 
+           count_error < -1 | count_error > 1 ~ 0
+         )) 
+
+write.csv(df.trial, "../../../data/pilot/PROCESSED_DATA/pilot_exp1_trial.csv", row.names = FALSE)
+```
+
+
+

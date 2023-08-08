@@ -1,0 +1,350 @@
+---
+title: "Exp2 Pilot"
+output: html_document
+date: "2023-03-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library('tidyverse')
+library("purrr")
+library("uuid")
+library('lubridate')
+library('ggplot2')
+library('lme4')
+library('car')
+
+theme_set(theme_classic())
+```
+
+```{r get data}
+df.ppt_raw <- read.csv('../../../data/pilot/PROCESSED_DATA/pilot_exp2_ppt.csv')
+df.trial_raw <- read.csv('../../../data/pilot/PROCESSED_DATA/pilot_exp2_trial.csv')
+```
+
+```{r}
+#exclusions go here (or in a separate thing)
+ppt_excluded_completion <- df.trial_raw %>% 
+      group_by(id) %>%
+         summarise(percentage_give_count = sum(!is.na(count)) / n()) %>%
+  filter(percentage_give_count < 10/12) %>%
+  pull(id)
+
+ppt_excluded_demographics <- df.ppt_raw %>%
+  filter(primary_lang != "English") %>%
+  pull(id)
+
+df.ppt <- df.ppt_raw %>%
+  filter(!id %in% ppt_excluded_completion) %>%
+  filter(!id %in% ppt_excluded_demographics)
+
+df.trial <- df.trial_raw %>%
+  filter(!id %in% ppt_excluded_completion) %>%
+  filter(!id %in% ppt_excluded_demographics)
+```
+
+## Demographics Stats
+
+```{r summarize ppt}
+df.ppt %>%
+  count(age_years) %>%
+  knitr::kable()
+
+df.ppt %>%
+  count(gender) %>%
+  knitr::kable()
+```
+
+## Trial Statistics
+
+```{r}
+df.trial %>%
+  count(set_chosen) %>%
+  knitr::kable()
+
+df.trial %>%
+  count(correct_count) %>%
+  knitr::kable()
+
+df.trial %>%
+  #filter(!id %in% ppt_exclude) %>%
+  group_by(trial_type) %>%
+  summarise(percentage_choose_set = sum(!is.na(set_chosen)) / n(), 
+    percentage_give_count = sum(!is.na(count)) / n(), 
+            percentage_correct_count = sum(!is.na(correct_count) & correct_count == 1) / n()) %>%
+  knitr::kable()
+```
+
+## Results
+
+### Correct set chosen
+
+Slightly better performance for small sets > large distinguishable sets > large non-distinguishable sets. But not very clear difference.
+
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(x = trial_type, y = correct_set_chosen_with_correct_count, color = trial_type)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") + 
+  labs(y = "Cardinal extension success (by trial)", 
+       x = "Trial Type") 
+
+ggplot(data = df.trial %>%
+         filter(correct_set_chosen_with_correct_count == 1), 
+       mapping = aes(x = trial_type, y = correct_set_chosen, color = trial_type)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") + 
+  labs(y = "Cardinal extension success (by trial)", 
+       x = "Trial Type") 
+  
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = correct_set_chosen_with_correct_count)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") 
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = correct_set_chosen_with_correct_count)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  geom_bar(aes(fill = as.factor(age_years)),
+           stat = "summary", 
+           fun.y = "mean") +
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  facet_grid(~ trial_type) + 
+  theme(legend.position = "none")
+```
+
+#### By participant
+
+Doesn't seem to be a systematic difference between the trial types.
+
+```{r}
+ggplot(data = df.trial %>%
+         group_by(id, trial_type) %>%
+         summarise(mean_correct_set_or_count = mean(correct_set_chosen_with_correct_count, na.rm = FALSE)), 
+       mapping = aes(x = trial_type, y = mean_correct_set_or_count)) +
+  geom_violin(aes(fill = trial_type)) +
+  geom_jitter(height = 0, 
+              alpha = 0.5, 
+              aes(group = id)) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial %>%
+         group_by(id, trial_type, age_years) %>%
+         summarise(mean_correct_set_or_count = mean(correct_set_chosen_with_correct_count, na.rm = TRUE)), 
+       mapping = aes(x = age_years, y = mean_correct_set_or_count)) +
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  facet_grid(~ trial_type) + 
+  theme(legend.position = "none")
+```
+
+Even when included all the participants (including the 3 excluded ones).
+
+```{r}
+ggplot(data = df.trial_raw %>%
+         group_by(id, trial_type) %>%
+         summarise(mean_correct_set_or_count = mean(correct_set_chosen_with_correct_count, na.rm = TRUE)), 
+       mapping = aes(x = trial_type, y = mean_correct_set_or_count)) +
+  geom_violin(aes(fill = trial_type)) +
+  geom_line(aes(group = id,
+                color = id,
+                label = id)) +
+  geom_text(aes(label = substr(id, 0, 3))) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+```
+No effect of either magnitude (large vs small) or trial type (large DR vs large NDR vs small)
+```{r}
+m.0 <- glmer(correct_set_chosen_with_correct_count ~ magnitude + age_years + (1 | id) + (1 | trial), data = df.trial, family="binomial")
+summary(m.0)
+Anova(m.0, type = 3)
+
+m.1 <- glmer(correct_set_chosen_with_correct_count ~ trial_type + age_years + (1 | id) + (1 | trial), data = df.trial, family="binomial")
+summary(m.1)
+Anova(m.1, type = 3)
+
+m.2 <- glmer(correct_set_chosen_with_correct_count ~ highest_count + age_years + (1 | id) + (1 | trial), data = df.trial, family="binomial")
+summary(m.2)
+Anova(m.2, type = 3)
+
+anova(m.0, m.1, type = 3)
+```
+
+### Correct set chosen (only overt set selection)
+
+Kids are at chance if we only count overt set selection.
+
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(x = trial_type, y = correct_set_chosen)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = correct_set_chosen)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = correct_set_chosen)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  geom_bar(aes(fill = as.factor(age_years)),
+           stat = "summary", 
+           fun.y = "mean") +
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  facet_grid(~ trial_type) + 
+  theme(legend.position = "none")
+```
+
+#### By participant
+
+```{r}
+ggplot(data = df.trial %>%
+         group_by(id, trial_type) %>%
+         summarise(mean_correct_set = mean(correct_set_chosen, na.rm = TRUE)), 
+       mapping = aes(x = trial_type, y = mean_correct_set)) + 
+  geom_violin(aes(fill = trial_type)) +
+  geom_jitter(height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+```
+
+### Correct count
+
+Quick overview (0: incorrect count, 1: correct count). Kids who did not give a count are considered incorrect.
+
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(as.factor(correct_count))) + 
+  geom_bar(aes(fill = as.factor(correct_count))) +
+  facet_grid(~trial_type) + 
+  theme(legend.position = "none")
+```
+
+Performance is better for small sets \> large DR \> large NDR.
+
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(x = trial_type, y = correct_count)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = correct_count)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = correct_count)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  geom_bar(aes(fill = as.factor(age_years)),
+           stat = "summary", 
+           fun.y = "mean") +
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  facet_grid( ~ trial_type) + 
+  theme(legend.position = "none")
+```
+
+#### By participant
+
+```{r}
+ggplot(data = df.trial %>%
+         group_by(id, trial_type) %>%
+         summarise(mean_correct_count = mean(correct_count, na.rm = TRUE)), 
+       mapping = aes(x = trial_type, y = mean_correct_count)) + 
+  geom_violin(aes(fill = trial_type)) +
+  geom_jitter(height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+```
+
+### Approximate correct count
+
+Rose only did this for large set. Still no difference between distinguishable and non-distinguishable ratios.
+
+```{r}
+ggplot(data = df.trial %>% filter(trial_type != "small"), 
+       mapping = aes(x = trial_type, y = correct_count_approx)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial %>% filter(trial_type != "small"), 
+       mapping = aes(x = age_years, y = correct_count_approx)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+```
+
+### Error size
+
+Exclude kids who did not finish more than 90% of trials. For only trials where counts are given.
+
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(x = trial_type, y = abs(count_error))) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial,
+       mapping = aes(x = age_years, y = abs(count_error))) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+```

@@ -1,0 +1,311 @@
+---
+title: "Exp2"
+output: html_document
+date: "2023-05-31"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE
+)
+library('tidyverse')
+library("purrr")
+library("uuid")
+library('lubridate')
+library('ggplot2')
+library('lme4')
+library('car')
+library('emmeans')
+
+theme_set(theme_classic())
+```
+
+```{r get data}
+df.ppt_raw <- read.csv('../../../data/exp2/PROCESSED_DATA/exp2_ppt.csv')
+df.trial_raw <- read.csv('../../../data/exp2/PROCESSED_DATA/exp2_trial.csv')
+```
+
+# Exclusions
+Exclude 3 kids who missed more than 1 trial (completed 7 or fewer trials out of 9). 
+
+```{r exclusions}
+#exclusions go here (or in a separate thing)
+# exclude participants who missed more than 1 trial (completed fewer than 8)
+ppt_excluded_completion <- df.trial_raw %>% 
+  filter(is.na(count)) %>%
+  group_by(id) %>%
+  summarise(n_no_count = n()) %>%
+  filter(n_no_count > 1) %>%
+  pull(id)
+
+df.ppt <- df.ppt_raw %>%
+  filter(!id %in% ppt_excluded_completion)
+
+df.trial_precounted <- df.trial_raw %>%
+  filter(!is.na(precounted)) # 10 trials were precounted, 5 from the same kid --> should I also just get rid of this kid?
+
+df.trial <- df.trial_raw %>%
+  filter(!id %in% ppt_excluded_completion) %>%
+  filter(is.na(precounted))
+```
+
+## Demographics Stats
+
+```{r summarize ppt}
+df.ppt %>%
+  count(age_years) %>%
+  knitr::kable()
+
+df.ppt %>%
+  count(gender) %>%
+  knitr::kable()
+```
+
+```{r}
+# df.trial <- df.trial %>%
+#   mutate(correct_count_no_na = ifelse(is.na(correct_count), 0, 1), 
+#          correct_count_approx_no_na = ifelse(is.na(correct_count_approx), 0, 1)) 
+```
+
+## Results
+
+### Cardinal extension 
+
+Comparing: correct set combined with correct count, only correct set, only correct count.
+
+#### By trial
+
+Doesn't seem to be any differences between trial types.
+
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(x = trial_type, y = correct_set_chosen_or_correct_count, color = trial_type)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") + 
+  labs(y = "Cardinal extension success (by trial)", 
+       x = "Trial Type", 
+       title = "Correct set chosen OR correct count") 
+
+ggplot(data = df.trial, 
+       mapping = aes(x = trial_type, y = correct_count_when_correct_set_chosen, color = trial_type)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") + 
+  labs(y = "Cardinal extension success (by trial)", 
+       x = "Trial Type", 
+       title = "Correct set chosen AND correct count") 
+
+ggplot(data = df.trial,
+       mapping = aes(x = trial_type, y = correct_set_chosen, color = trial_type)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") + 
+  labs(y = "Cardinal extension success (by trial)", 
+       x = "Trial Type", 
+       title = "Correct set chosen") 
+
+ggplot(data = df.trial,
+       mapping = aes(x = trial_type, y = correct_count, color = trial_type)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") + 
+  labs(y = "Cardinal extension success (by trial)", 
+       x = "Trial Type", 
+       title = "Correct count") 
+
+ggplot(data = df.trial %>% 
+         select(trial_type, correct_set_chosen, correct_count, correct_set_chosen_or_correct_count, correct_count_when_correct_set_chosen) %>%
+          pivot_longer(-trial_type, names_to = "variable", values_to = "value"), 
+       mapping = aes(x = trial_type, y = value, color = variable)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange", 
+               position = position_dodge(0.7)) +
+  labs(y = "Cardinal extension success (by trial)", 
+       x = "Trial Type")
+```
+
+#### By participant
+
+Each dot is a participant. Accurracy in set chosen against age (months) looks linear.
+
+```{r}
+ggplot(data = df.trial %>%
+         group_by(id, trial_type) %>%
+         summarise(mean_correct_set_or_count = mean(correct_set_chosen_or_correct_count, na.rm = FALSE)), 
+       mapping = aes(x = trial_type, y = mean_correct_set_or_count)) +
+  geom_violin(aes(fill = trial_type)) +
+  geom_jitter(height = 0, 
+              alpha = 0.5, 
+              aes(group = id)) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") + 
+  labs(y = "Cardinal extension success (by participant)", 
+       x = "Trial Type", 
+       title = "Correct set chosen OR correct count") 
+
+ggplot(data = df.trial %>%
+         group_by(id, trial_type) %>%
+         summarise(mean_correct_count_with_set = mean(correct_set_chosen_with_correct_count, na.rm = FALSE)), 
+       mapping = aes(x = trial_type, y = mean_correct_count_with_set)) +
+  geom_violin(aes(fill = trial_type)) +
+  geom_jitter(height = 0, 
+              alpha = 0.5, 
+              aes(group = id)) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") + 
+  labs(y = "Cardinal extension success (by participant)", 
+       x = "Trial Type", 
+       title = "Correct set chosen AND correct count") 
+
+ggplot(data = df.trial %>%
+         group_by(id, trial_type) %>%
+         summarise(mean_correct_set_chosen = mean(correct_set_chosen, na.rm = FALSE)), 
+       mapping = aes(x = trial_type, y = mean_correct_set_chosen)) +
+  geom_violin(aes(fill = trial_type)) +
+  geom_jitter(height = 0, 
+              alpha = 0.5, 
+              aes(group = id)) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") + 
+  labs(y = "Cardinal extension success (by participant)", 
+       x = "Trial Type", 
+       title = "Correct set chosen") 
+
+ggplot(data = df.trial %>%
+         group_by(id, trial_type) %>%
+         summarise(mean_correct_count = mean(correct_count, na.rm = FALSE)), 
+       mapping = aes(x = trial_type, y = mean_correct_count)) +
+  geom_violin(aes(fill = trial_type)) +
+  geom_jitter(height = 0, 
+              alpha = 0.5, 
+              aes(group = id)) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") + 
+  labs(y = "Cardinal extension success (by participant)", 
+       x = "Trial Type", 
+       title = "Correct count") 
+
+```
+
+### Approximate correct count
+
+Rose only did this for large set, to take into account kids who might have made a mistake during counting. Still no difference between distinguishable and non-distinguishable ratios. But in any case, they should still have gotten the correct set, since it's unlikely that they get the correct count for large trials without choosing a set. So maybe this is unnecessary.
+
+```{r}
+ggplot(data = df.trial %>% filter(trial_type != "small"), 
+       mapping = aes(x = trial_type, y = correct_count_approx)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial %>% filter(trial_type != "small"), 
+       mapping = aes(x = age_years, y = correct_count_approx)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+```
+
+### Error size
+
+Exclude kids who did not finish more than 90% of trials. For only trials where counts are given.
+
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(x = trial_type, y = abs(count_error))) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial,
+       mapping = aes(x = age_years, y = abs(count_error))) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+```
+
+### Regressions 
+
+No effect of age. Significant improvement when trial type is added as predictor.
+
+Effect of trial type: significant difference between large - nondistinguishable ratio trials and small trials, but no differences between large distinguishable vs nondistinguishable ratios, or large distinguishable vs small. 
+
+When correct set is used as the DV: significant diff between large nondistinguishable ratio vs small, and large distinguishable vs nondistinguishable ratios. But not between large distinguishable vs small. 
+
+```{r}
+#no effect of age
+fit.base <- glmer(correct_set_chosen_or_correct_count ~ age_years + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
+summary(fit.base)
+Anova(fit.base, type = 3)
+
+fit.trial_type <- glmer(correct_set_chosen_or_correct_count ~ trial_type + age_years + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
+summary(fit.trial_type)
+Anova(fit.trial_type, type = 3)
+
+anova(fit.trial_type, fit.base, type = 3)
+
+fit.trial_type %>% 
+  emmeans(specs = pairwise ~ trial_type,
+          adjust = "none")
+
+fit.base_correct_set <- glmer(correct_set_chosen ~ age_years + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
+summary(fit.base_correct_set)
+Anova(fit.base_correct_set, type = 3)
+
+fit.trial_type_correct_set <- glmer(correct_set_chosen ~ trial_type + age_years + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
+summary(fit.trial_type_correct_set)
+Anova(fit.trial_type_correct_set, type = 3)
+
+fit.trial_type_correct_set %>% 
+  emmeans(specs = pairwise ~ trial_type,
+          adjust = "none")
+
+```
+
+#### Highest count
+
+No effect of highest count
+```{r}
+fit.base_hc <- glmer(correct_set_chosen_or_correct_count ~ highest_count + age_years + (1|id) + (1|trial_ratio), 
+                     data = df.trial %>%
+                                  filter(!is.na(highest_count)),
+                                family="binomial")
+summary(fit.base_hc)
+Anova(fit.base_hc, type = 3)
+
+#---------
+fit.trial_type_hc <- glmer(correct_set_chosen_or_correct_count ~ highest_count + trial_type + age_years + (1|id) + (1|trial_ratio), 
+                   data = df.trial %>%
+                                  filter(!is.na(highest_count)),
+                                family="binomial")
+summary(fit.trial_type_hc)
+Anova(fit.trial_type_hc, type = 3)
+
+```

@@ -1,0 +1,8 @@
+"0",""
+"0","df.trial %>%"
+"0","  #filter(!id %in% ppt_exclude) %>%"
+"0","  group_by(trial_type) %>%"
+"0","  summarise(percentage_choose_set = sum(!is.na(set_chosen)) / n(), "
+"0","    percentage_give_count = sum(!is.na(count)) / n(), "
+"0","            percentage_correct_count = sum(!is.na(correct_count) & correct_count == 1) / n()) %>%"
+"0","  knitr::kable()"

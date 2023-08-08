@@ -1,0 +1,3 @@
+"0","df.load_raw_exp1 <- read.csv('../../../data/exp1/RAW_DATA/exp1_data_0414.csv')"
+"0",""
+"0","df.stim <- read.csv('../../../data/exp1/RAW_DATA/stim.csv')"

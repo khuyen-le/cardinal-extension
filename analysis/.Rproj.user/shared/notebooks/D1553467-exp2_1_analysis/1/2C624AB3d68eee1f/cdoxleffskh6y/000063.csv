@@ -1,0 +1,27 @@
+"0","ggplot(data = df.trial %>%
+         group_by(id, trial_type) %>%
+         summarise(mean_correct_count_with_set = mean(correct_set_chosen_with_correct_count, na.rm = FALSE)), 
+       mapping = aes(x = trial_type, y = mean_correct_count_with_set)) +
+  geom_violin(aes(fill = trial_type)) +
+  geom_jitter(height = 0, 
+              alpha = 0.5, 
+              aes(group = id)) + 
+  stat_summary(fun.data = ""mean_cl_boot"", 
+               geom = ""pointrange"") +
+  theme(legend.position = ""none"") + 
+  labs(y = ""Cardinal extension success (by participant)"", 
+       x = ""Trial Type"", 
+       title = ""Correct set chosen AND correct count"") 
+"
+"1","[1m[33mError[39m in `summarise()`:[22m
+[38;5;232m[36mℹ[38;5;232m In argument: `mean_correct_count_with_set =
+  mean(correct_set_chosen_with_correct_count, na.rm = FALSE)`.
+[36mℹ[38;5;232m In group 1: `id = ""1057b826-ddb4-4555-a6dc-545ae2c64da0""`,
+  `trial_type = ""large - DR""`.[39m
+[1mCaused by error in `h()`:[22m
+[33m![39m error in evaluating the argument 'x' in selecting a method for function 'mean': object 'correct_set_chosen_with_correct_count' not found
+Backtrace:
+[90m  1. [39mggplot2::ggplot(...)
+[90m 13. [39m[1mbase[22m::.handleSimpleError(...)
+[90m 14. [39mbase (local) h(simpleError(msg, call))
+"

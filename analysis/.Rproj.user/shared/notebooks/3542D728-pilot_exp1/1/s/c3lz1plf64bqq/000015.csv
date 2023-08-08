@@ -1,0 +1,35 @@
+"0","df.trial <- df.raw_exp1 %>% 
+  select(id, age_months, age_years, 
+         stim_set, highest_count, knower_level, knower_level_cp_subset,
+         trial, set_chosen, count, set_asked, n_bunnies, n_lions) %>%
+  mutate(count = as.numeric(count)) %>%
+  #remove for actual data
+  mutate(magnitude = case_when(
+    n_bunnies <= 4 ~ ""small"", 
+    n_bunnies >= 5 ~ ""large""
+  )) %>%
+  rowwise() %>%
+  mutate(trial_ratio = paste(sort(c(n_bunnies, n_lions)), collapse = ""-"")) %>%
+  mutate(correct_set_chosen =  case_when(
+           set_asked == set_chosen ~ 1,
+           set_asked != set_chosen ~ 0, 
+           is.na(set_chosen) ~ 0,
+         ),
+         correct_count = case_when(
+           is.na(count) ~ 0,
+           set_asked == ""bunny"" & count == n_bunnies ~ 1,
+           set_asked == ""bunny"" & count != n_bunnies ~ 0,
+           set_asked == ""lion"" & count == n_lions ~ 1,
+           set_asked == ""lion"" & count != n_lions ~ 0,
+         ), 
+         count_error = case_when(
+           set_asked == ""bunny"" & !is.na(count) ~ count - n_bunnies,
+           set_asked == ""lion"" & !is.na(count) ~ count - n_lions, 
+         ), 
+         correct_count_approx = case_when(
+           is.na(count) ~ 0, 
+           count_error >= -1 & count_error <= 1 ~ 1, 
+           count_error < -1 | count_error > 1 ~ 0
+         )) 
+"
+"2","Warning: NAs introduced by coercion"

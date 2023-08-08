@@ -1,0 +1,92 @@
+---
+title: "Preprocessing"
+output: html_document
+date: "2023-03-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('tidyverse')
+library("purrr")
+library("uuid")
+library('lubridate')
+```
+
+```{r get data}
+df.load_raw_exp2 <- read.csv('../../../data/pilot/RAW_DATA/pilot_exp2.csv')
+```
+
+```{r create participant files}
+df.raw_exp2 <- df.load_raw_exp2 %>%
+  group_by(pid) %>%
+  mutate(id = UUIDgenerate()) %>%
+  ungroup() %>%
+  select(id, DOT, DOB, gender, primary_lang, is_bilingual,
+         stim_set, highest_count, knower_level, 
+         trial, set_chosen, count, n_item1, n_item2, set_correct, is_filler) %>%
+  mutate(age_months = interval(mdy(DOB), mdy(DOT)) %/% months(1), 
+         age_years = interval(mdy(DOB), mdy(DOT)) %/% years(1)) %>%
+  mutate(knower_level_cp_subset = ifelse(knower_level == "CP", "CP", "subset"))
+
+df.ppt <- df.raw_exp2 %>% 
+  group_by(id, age_months, age_years, gender, primary_lang, is_bilingual,
+           stim_set, highest_count, knower_level, knower_level_cp_subset) %>%
+  summarise()
+
+write.csv(df.ppt, "../../../data/pilot/PROCESSED_DATA/pilot_exp2_ppt.csv", row.names = FALSE)
+```
+
+```{r create trial files}
+df.trial <- df.raw_exp2 %>% 
+  select(id, age_months, age_years, 
+         stim_set, highest_count, knower_level, knower_level_cp_subset,
+         trial, set_chosen, count, n_item1, n_item2, set_correct, is_filler) %>%
+  mutate(count = as.numeric(count), 
+         is_filler = ifelse(is_filler == "Y", "filler", "trial"), 
+         correct_n_items = ifelse(n_item1 > n_item2, n_item1, n_item2)) %>%
+   mutate(trial_type = case_when(
+            n_item1 <= 4 ~ "small", 
+            n_item1 >= 5 & (n_item1 / n_item2 >= 2 | n_item2 / n_item1 >= 2) ~ "large - DR",
+            n_item1 >= 5 & (n_item1 / n_item2 < 2 | n_item2 / n_item1 < 2) ~ "large - NDR",
+          )) %>%
+  mutate(magnitude = case_when(
+            n_item1 <= 4 ~ "small", 
+            n_item1 >= 5 ~ "large",
+          )) %>%
+  # if the trial is a filler, then these fields should be NA
+  mutate(correct_n_items = ifelse(is_filler == "trial", correct_n_items, NA), 
+         trial_type = ifelse(is_filler == "trial", trial_type, NA)) %>%
+  rowwise() %>%
+  mutate(trial_ratio = paste(sort(c(n_item1, n_item2)), collapse = "-")) %>%
+  mutate(correct_set_chosen = case_when(
+          set_chosen == set_correct & is_filler == "trial" ~ 1, 
+          set_chosen != set_correct & is_filler == "trial" ~ 0,
+          is.na(set_chosen) ~ 0,
+          is_filler == "filler" ~ 0,
+        ),
+         correct_count = case_when( #N/A means did not count
+           is.na(count) ~ 0,
+           is_filler == "filler" ~ 0,
+           count == correct_n_items & is_filler == "trial" ~ 1,
+           count != correct_n_items & is_filler == "trial" ~ 0
+         ), 
+        correct_set_chosen_with_correct_count = ifelse(
+           correct_count == 1 | correct_set_chosen == 1, 1, 0
+         ),
+         count_error = case_when(
+          !is.na(count) & is_filler == "trial" ~ count - correct_n_items,
+         ), 
+         correct_count_approx = case_when( # not correct for non-distinguishable ratios
+           is.na(count) ~ 0,
+           count_error >= -1 & count_error <= 1 & is_filler == "trial" ~ 1, 
+           count_error < -1 | count_error > 1 & is_filler == "trial" ~ 0
+         )) 
+
+df.trial <- df.trial %>%
+  filter(is_filler != "filler")
+
+write.csv(df.trial, "../../../data/pilot/PROCESSED_DATA/pilot_exp2_trial.csv", row.names = FALSE)
+```
+
+
+

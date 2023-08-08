@@ -1,0 +1,32 @@
+{
+    "id": "5B7A7463",
+    "path": "~/Desktop/UCSD/Lab/number/analysis/pilot/1_analysis/exp2_analysis.Rmd",
+    "project_path": "pilot/1_analysis/exp2_analysis.Rmd",
+    "type": "r_markdown",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1680220052044.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "303,0",
+        "scrollLine": "0",
+        "last_setup_crc32": "",
+        "rmdVisualMode": "false",
+        "rmdVisualWrapConfigured": "true",
+        "docOutlineVisible": "0",
+        "rmdVisualModeLocation": "2943:413",
+        "rmdVisualCollapsedChunks": ""
+    },
+    "folds": "303|29|326|0|\n327|14|350|0|\n",
+    "lastKnownWriteTime": 1681735805,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1685646615337,
+    "read_only": false,
+    "read_only_alternatives": []
+}

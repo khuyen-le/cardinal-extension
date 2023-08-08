@@ -1,0 +1,8 @@
+"id","age_months","age_years","gender","primary_lang","is_bilingual","stim_set","highest_count","knower_level","knower_level_cp_subset"
+"2ab216d3-5ecc-4296-a6be-51d0b9bc86f1",65,5,"M","English","N",1,29,"CP","CP"
+"47b0ad4d-db0e-4055-9e5c-039bd96a6527",70,5,"F","English","N",1,49,"CP","CP"
+"67a521ee-791d-4625-8cac-65a50405f08e",49,4,"M","English","N",1,10,"4","subset"
+"7493fe94-8b29-4746-8d32-18ac3aeaaafd",51,4,"","English","",1,13,"CP","CP"
+"929020fa-0b7e-4cef-92fa-b1440515fd95",40,3,"M","English","Y",1,9,"CP","CP"
+"fd68599c-86df-465c-85f4-d43591d4c755",85,7,"F","English","Y",1,49,"CP","CP"
+"ff5ec080-5544-4cda-b890-e4e69b8e64f2",40,3,"M","English","N",1,10,"4","subset"

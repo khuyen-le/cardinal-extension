@@ -1,0 +1,191 @@
+---
+title: "Exp1 Pilot"
+output: html_document
+date: "2023-03-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library('tidyverse')
+library("purrr")
+library("uuid")
+library('lubridate')
+library('ggplot2')
+
+#theme_set(theme_classic())
+```
+
+```{r get data}
+df.ppt <- read.csv('../../../data/pilot/PROCESSED_DATA/pilot_exp1_ppt.csv')
+df.trial <- read.csv('../../../data/pilot/PROCESSED_DATA/pilot_exp1_trial.csv')
+```
+
+```{r}
+#exclusions go here (or in a separate thing)
+```
+
+## Demographics Stats
+```{r summarize ppt}
+
+df.ppt %>%
+  count(age_years) %>%
+  knitr::kable()
+
+df.ppt %>%
+  count(gender) %>%
+  knitr::kable()
+
+df.ppt %>%
+  count(knower_level_cp_subset) %>%
+  knitr::kable()
+```
+
+```{r}
+df.trial <- df.trial %>%
+  mutate(correct_count_no_na = ifelse(is.na(correct_count), 0, 1), 
+         correct_count_approx_no_na = ifelse(is.na(correct_count_approx), 0, 1)) 
+```
+
+## Results
+### Correct set chosen
+Q: In cases where kids don't overtly count, is it okay to assume they have counted the correct set if they give the correct count? YES? 
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(x = knower_level_cp_subset, y = correct_set_chosen)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+    facet_grid(~ magnitude) + 
+  theme(legend.position = "none")
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = correct_set_chosen)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = correct_set_chosen)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  geom_bar(aes(fill = as.factor(age_years)),
+           stat = "summary", 
+           fun.y = "mean") +
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  facet_grid(magnitude ~ knower_level_cp_subset) + 
+  theme(legend.position = "none")
+```
+
+### Correct count
+CP knowers are at ceiling for small sets but not for large sets. 
+Subset knowers are average for small sets but at floor for large sets. 
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(x = knower_level_cp_subset, y = correct_count)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  facet_grid(~ magnitude) + 
+  theme(legend.position = "none")
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = correct_count)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = correct_count)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  geom_bar(aes(fill = as.factor(age_years)),
+           stat = "summary", 
+           fun.y = "mean") +
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  facet_grid(magnitude ~ knower_level_cp_subset) + 
+  theme(legend.position = "none")
+```
+
+### Approximate correct count
+Rose only did this for large set, but this makes subset knowers perform almost as well as CP knowers
+```{r}
+ggplot(data = df.trial %>% filter(magnitude == "large"), 
+       mapping = aes(x = knower_level_cp_subset, y = correct_count_approx)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  facet_grid(~ magnitude) + 
+  theme(legend.position = "none")
+
+ggplot(data = df.trial %>% filter(magnitude == "large"), 
+       mapping = aes(x = age_years, y = correct_count_approx)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial %>% filter(magnitude == "large"), 
+       mapping = aes(x = age_years, y = correct_count_approx)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  geom_bar(aes(fill = as.factor(age_years)),
+           stat = "summary", 
+           fun.y = "mean") +
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  facet_grid(magnitude ~ knower_level_cp_subset) + 
+  theme(legend.position = "none")
+```
+### Error size
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(x = knower_level_cp_subset, y = abs(count_error))) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  facet_grid(~ magnitude) + 
+  theme(legend.position = "none")
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = abs(count_error))) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = abs(count_error))) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  geom_bar(aes(fill = as.factor(age_years)),
+           stat = "summary", 
+           fun.y = "mean") +
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  facet_grid(magnitude ~ knower_level_cp_subset) + 
+  theme(legend.position = "none")
+```

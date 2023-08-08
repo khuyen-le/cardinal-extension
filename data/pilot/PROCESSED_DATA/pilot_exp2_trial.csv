@@ -1,0 +1,114 @@
+"id","age_months","age_years","stim_set","highest_count","knower_level","knower_level_cp_subset","trial","set_chosen","count","n_item1","n_item2","set_correct","is_filler","correct_n_items","trial_type","magnitude","trial_ratio","correct_set_chosen","correct_count","correct_set_chosen_with_correct_count","count_error","correct_count_approx"
+"417c43e7-cfae-4242-b5b5-ca4fd63ff86a",66,5,1,100,"CP","CP",1,NA,11,11,5,"bottom","trial",11,"large - DR","large","5-11",0,1,1,0,1
+"417c43e7-cfae-4242-b5b5-ca4fd63ff86a",66,5,1,100,"CP","CP",2,NA,3,3,1,"top","trial",3,"small","small","1-3",0,1,1,0,1
+"417c43e7-cfae-4242-b5b5-ca4fd63ff86a",66,5,1,100,"CP","CP",3,NA,11,10,11,"top","trial",11,"large - NDR","large","10-11",0,1,1,0,1
+"417c43e7-cfae-4242-b5b5-ca4fd63ff86a",66,5,1,100,"CP","CP",4,NA,4,2,4,"bottom","trial",4,"small","small","2-4",0,1,1,0,1
+"417c43e7-cfae-4242-b5b5-ca4fd63ff86a",66,5,1,100,"CP","CP",5,NA,11,10,9,"top","trial",10,"large - NDR","large","9-10",0,0,0,1,1
+"417c43e7-cfae-4242-b5b5-ca4fd63ff86a",66,5,1,100,"CP","CP",6,NA,11,6,12,"top","trial",12,"large - DR","large","6-12",0,0,0,-1,1
+"417c43e7-cfae-4242-b5b5-ca4fd63ff86a",66,5,1,100,"CP","CP",7,NA,4,4,3,"bottom","trial",4,"small","small","3-4",0,1,1,0,1
+"417c43e7-cfae-4242-b5b5-ca4fd63ff86a",66,5,1,100,"CP","CP",8,NA,2,2,1,"bottom","trial",2,"small","small","1-2",0,1,1,0,1
+"417c43e7-cfae-4242-b5b5-ca4fd63ff86a",66,5,1,100,"CP","CP",9,NA,11,11,12,"top","trial",12,"large - NDR","large","11-12",0,0,0,-1,1
+"417c43e7-cfae-4242-b5b5-ca4fd63ff86a",66,5,1,100,"CP","CP",10,NA,3,2,3,"bottom","trial",3,"small","small","2-3",0,1,1,0,1
+"417c43e7-cfae-4242-b5b5-ca4fd63ff86a",66,5,1,100,"CP","CP",11,NA,10,5,10,"top","trial",10,"large - DR","large","5-10",0,1,1,0,1
+"417c43e7-cfae-4242-b5b5-ca4fd63ff86a",66,5,1,100,"CP","CP",12,NA,3,3,2,"bottom","trial",3,"small","small","2-3",0,1,1,0,1
+"91787a4a-c606-4ed1-a5ef-8071115b2743",49,4,1,31,"CP","CP",1,NA,NA,11,5,"bottom","trial",11,"large - DR","large","5-11",0,0,0,NA,0
+"91787a4a-c606-4ed1-a5ef-8071115b2743",49,4,1,31,"CP","CP",2,NA,11,6,12,"top","trial",12,"large - DR","large","6-12",0,0,0,-1,1
+"91787a4a-c606-4ed1-a5ef-8071115b2743",49,4,1,31,"CP","CP",3,NA,NA,3,1,"top","trial",3,"small","small","1-3",0,0,0,NA,0
+"91787a4a-c606-4ed1-a5ef-8071115b2743",49,4,1,31,"CP","CP",4,NA,NA,5,10,"bottom","trial",10,"large - DR","large","5-10",0,0,0,NA,0
+"91787a4a-c606-4ed1-a5ef-8071115b2743",49,4,1,31,"CP","CP",5,NA,NA,2,1,"bottom","trial",2,"small","small","1-2",0,0,0,NA,0
+"91787a4a-c606-4ed1-a5ef-8071115b2743",49,4,1,31,"CP","CP",6,NA,NA,2,4,"top","trial",4,"small","small","2-4",0,0,0,NA,0
+"9d86afb2-f5ff-4847-aebf-6a94eacb5d14",67,5,1,16,"CP","CP",1,NA,10,11,5,"bottom","trial",11,"large - DR","large","5-11",0,0,0,-1,1
+"9d86afb2-f5ff-4847-aebf-6a94eacb5d14",67,5,1,16,"CP","CP",2,NA,12,6,12,"top","trial",12,"large - DR","large","6-12",0,1,1,0,1
+"9d86afb2-f5ff-4847-aebf-6a94eacb5d14",67,5,1,16,"CP","CP",3,NA,NA,3,1,"top","trial",3,"small","small","1-3",0,0,0,NA,0
+"9d86afb2-f5ff-4847-aebf-6a94eacb5d14",67,5,1,16,"CP","CP",4,NA,NA,5,10,"bottom","trial",10,"large - DR","large","5-10",0,0,0,NA,0
+"9d86afb2-f5ff-4847-aebf-6a94eacb5d14",67,5,1,16,"CP","CP",5,NA,NA,2,1,"bottom","trial",2,"small","small","1-2",0,0,0,NA,0
+"9d86afb2-f5ff-4847-aebf-6a94eacb5d14",67,5,1,16,"CP","CP",6,NA,NA,2,4,"top","trial",4,"small","small","2-4",0,0,0,NA,0
+"12fbed5d-171a-472b-9c91-61cefa002d54",41,3,1,39,"CP","CP",1,NA,NA,11,5,"bottom","trial",11,"large - DR","large","5-11",0,0,0,NA,0
+"12fbed5d-171a-472b-9c91-61cefa002d54",41,3,1,39,"CP","CP",2,NA,3,3,1,"top","trial",3,"small","small","1-3",0,1,1,0,1
+"12fbed5d-171a-472b-9c91-61cefa002d54",41,3,1,39,"CP","CP",4,NA,11,10,11,"top","trial",11,"large - NDR","large","10-11",0,1,1,0,1
+"12fbed5d-171a-472b-9c91-61cefa002d54",41,3,1,39,"CP","CP",5,NA,4,2,4,"bottom","trial",4,"small","small","2-4",0,1,1,0,1
+"12fbed5d-171a-472b-9c91-61cefa002d54",41,3,1,39,"CP","CP",6,NA,10,10,9,"top","trial",10,"large - NDR","large","9-10",0,1,1,0,1
+"12fbed5d-171a-472b-9c91-61cefa002d54",41,3,1,39,"CP","CP",8,NA,12,6,12,"top","trial",12,"large - DR","large","6-12",0,1,1,0,1
+"12fbed5d-171a-472b-9c91-61cefa002d54",41,3,1,39,"CP","CP",9,NA,4,4,3,"bottom","trial",4,"small","small","3-4",0,1,1,0,1
+"12fbed5d-171a-472b-9c91-61cefa002d54",41,3,1,39,"CP","CP",10,NA,2,2,1,"bottom","trial",2,"small","small","1-2",0,1,1,0,1
+"12fbed5d-171a-472b-9c91-61cefa002d54",41,3,1,39,"CP","CP",12,NA,12,11,12,"top","trial",12,"large - NDR","large","11-12",0,1,1,0,1
+"12fbed5d-171a-472b-9c91-61cefa002d54",41,3,1,39,"CP","CP",13,NA,3,2,3,"bottom","trial",3,"small","small","2-3",0,1,1,0,1
+"12fbed5d-171a-472b-9c91-61cefa002d54",41,3,1,39,"CP","CP",15,NA,10,5,10,"top","trial",10,"large - DR","large","5-10",0,1,1,0,1
+"12fbed5d-171a-472b-9c91-61cefa002d54",41,3,1,39,"CP","CP",16,NA,3,3,2,"bottom","trial",3,"small","small","2-3",0,1,1,0,1
+"34bab5a4-3a86-429c-ade8-600014c85303",72,6,1,130,"CP","CP",1,NA,11,11,5,"bottom","trial",11,"large - DR","large","5-11",0,1,1,0,1
+"34bab5a4-3a86-429c-ade8-600014c85303",72,6,1,130,"CP","CP",2,NA,3,3,1,"top","trial",3,"small","small","1-3",0,1,1,0,1
+"34bab5a4-3a86-429c-ade8-600014c85303",72,6,1,130,"CP","CP",4,NA,11,10,11,"top","trial",11,"large - NDR","large","10-11",0,1,1,0,1
+"34bab5a4-3a86-429c-ade8-600014c85303",72,6,1,130,"CP","CP",5,NA,4,2,4,"bottom","trial",4,"small","small","2-4",0,1,1,0,1
+"34bab5a4-3a86-429c-ade8-600014c85303",72,6,1,130,"CP","CP",6,"top",10,10,9,"top","trial",10,"large - NDR","large","9-10",1,1,1,0,1
+"34bab5a4-3a86-429c-ade8-600014c85303",72,6,1,130,"CP","CP",8,"top",12,6,12,"top","trial",12,"large - DR","large","6-12",1,1,1,0,1
+"34bab5a4-3a86-429c-ade8-600014c85303",72,6,1,130,"CP","CP",9,"bottom",4,4,3,"bottom","trial",4,"small","small","3-4",1,1,1,0,1
+"34bab5a4-3a86-429c-ade8-600014c85303",72,6,1,130,"CP","CP",10,"bottom",2,2,1,"bottom","trial",2,"small","small","1-2",1,1,1,0,1
+"34bab5a4-3a86-429c-ade8-600014c85303",72,6,1,130,"CP","CP",12,"top",12,11,12,"top","trial",12,"large - NDR","large","11-12",1,1,1,0,1
+"34bab5a4-3a86-429c-ade8-600014c85303",72,6,1,130,"CP","CP",13,"bottom",3,2,3,"bottom","trial",3,"small","small","2-3",1,1,1,0,1
+"34bab5a4-3a86-429c-ade8-600014c85303",72,6,1,130,"CP","CP",15,"top",10,5,10,"top","trial",10,"large - DR","large","5-10",1,1,1,0,1
+"34bab5a4-3a86-429c-ade8-600014c85303",72,6,1,130,"CP","CP",16,"bottom",3,3,2,"bottom","trial",3,"small","small","2-3",1,1,1,0,1
+"3eacc0b5-46b8-49ac-bcf6-7f61b228d93c",45,3,1,11,"CP","CP",1,NA,10,11,5,"bottom","trial",11,"large - DR","large","5-11",0,0,0,-1,1
+"3eacc0b5-46b8-49ac-bcf6-7f61b228d93c",45,3,1,11,"CP","CP",3,NA,15,10,11,"top","trial",11,"large - NDR","large","10-11",0,0,0,4,0
+"3eacc0b5-46b8-49ac-bcf6-7f61b228d93c",45,3,1,11,"CP","CP",4,NA,10,2,4,"bottom","trial",4,"small","small","2-4",0,0,0,6,0
+"3eacc0b5-46b8-49ac-bcf6-7f61b228d93c",45,3,1,11,"CP","CP",5,NA,14,10,9,"top","trial",10,"large - NDR","large","9-10",0,0,0,4,0
+"3eacc0b5-46b8-49ac-bcf6-7f61b228d93c",45,3,1,11,"CP","CP",7,NA,11,6,12,"top","trial",12,"large - DR","large","6-12",0,0,0,-1,1
+"3eacc0b5-46b8-49ac-bcf6-7f61b228d93c",45,3,1,11,"CP","CP",8,NA,9,4,3,"bottom","trial",4,"small","small","3-4",0,0,0,5,0
+"3eacc0b5-46b8-49ac-bcf6-7f61b228d93c",45,3,1,11,"CP","CP",10,NA,17,11,12,"top","trial",12,"large - NDR","large","11-12",0,0,0,5,0
+"3eacc0b5-46b8-49ac-bcf6-7f61b228d93c",45,3,1,11,"CP","CP",12,NA,10,5,10,"top","trial",10,"large - DR","large","5-10",0,1,1,0,1
+"a24e9d15-2bd7-4ed6-934c-b7e7e527734d",80,6,1,113,"CP","CP",1,"bottom",11,11,5,"bottom","trial",11,"large - DR","large","5-11",1,1,1,0,1
+"a24e9d15-2bd7-4ed6-934c-b7e7e527734d",80,6,1,113,"CP","CP",2,"top",3,3,1,"top","trial",3,"small","small","1-3",1,1,1,0,1
+"a24e9d15-2bd7-4ed6-934c-b7e7e527734d",80,6,1,113,"CP","CP",4,"top",11,10,11,"top","trial",11,"large - NDR","large","10-11",1,1,1,0,1
+"a24e9d15-2bd7-4ed6-934c-b7e7e527734d",80,6,1,113,"CP","CP",5,"bottom",5,2,4,"bottom","trial",4,"small","small","2-4",1,0,1,1,1
+"a24e9d15-2bd7-4ed6-934c-b7e7e527734d",80,6,1,113,"CP","CP",6,"top",10,10,9,"top","trial",10,"large - NDR","large","9-10",1,1,1,0,1
+"a24e9d15-2bd7-4ed6-934c-b7e7e527734d",80,6,1,113,"CP","CP",8,"top",12,6,12,"top","trial",12,"large - DR","large","6-12",1,1,1,0,1
+"a24e9d15-2bd7-4ed6-934c-b7e7e527734d",80,6,1,113,"CP","CP",9,"bottom",4,4,3,"bottom","trial",4,"small","small","3-4",1,1,1,0,1
+"a24e9d15-2bd7-4ed6-934c-b7e7e527734d",80,6,1,113,"CP","CP",10,"bottom",2,2,1,"bottom","trial",2,"small","small","1-2",1,1,1,0,1
+"a24e9d15-2bd7-4ed6-934c-b7e7e527734d",80,6,1,113,"CP","CP",12,"top",13,11,12,"top","trial",12,"large - NDR","large","11-12",1,0,1,1,1
+"a24e9d15-2bd7-4ed6-934c-b7e7e527734d",80,6,1,113,"CP","CP",13,"bottom",3,2,3,"bottom","trial",3,"small","small","2-3",1,1,1,0,1
+"a24e9d15-2bd7-4ed6-934c-b7e7e527734d",80,6,1,113,"CP","CP",15,"top",10,5,10,"top","trial",10,"large - DR","large","5-10",1,1,1,0,1
+"a24e9d15-2bd7-4ed6-934c-b7e7e527734d",80,6,1,113,"CP","CP",16,"bottom",3,3,2,"bottom","trial",3,"small","small","2-3",1,1,1,0,1
+"8f7cbab0-e6da-4e30-9923-7482aa8c3782",49,4,1,73,"CP","CP",1,"bottom",11,11,5,"bottom","trial",11,"large - DR","large","5-11",1,1,1,0,1
+"8f7cbab0-e6da-4e30-9923-7482aa8c3782",49,4,1,73,"CP","CP",2,"top",3,3,1,"top","trial",3,"small","small","1-3",1,1,1,0,1
+"8f7cbab0-e6da-4e30-9923-7482aa8c3782",49,4,1,73,"CP","CP",4,"top",100,10,11,"top","trial",11,"large - NDR","large","10-11",1,0,1,89,0
+"8f7cbab0-e6da-4e30-9923-7482aa8c3782",49,4,1,73,"CP","CP",5,"both",3,2,1,"bottom","trial",2,"small","small","1-2",0,0,0,1,1
+"8f7cbab0-e6da-4e30-9923-7482aa8c3782",49,4,1,73,"CP","CP",7,"top",12,6,12,"top","trial",12,"large - DR","large","6-12",1,1,1,0,1
+"8f7cbab0-e6da-4e30-9923-7482aa8c3782",49,4,1,73,"CP","CP",8,"bottom",11,10,9,"top","trial",10,"large - NDR","large","9-10",0,0,0,1,1
+"8f7cbab0-e6da-4e30-9923-7482aa8c3782",49,4,1,73,"CP","CP",10,"bottom",11,11,12,"top","trial",12,"large - NDR","large","11-12",0,0,0,-1,1
+"8f7cbab0-e6da-4e30-9923-7482aa8c3782",49,4,1,73,"CP","CP",11,"both",100,2,3,"bottom","trial",3,"small","small","2-3",0,0,0,97,0
+"8f7cbab0-e6da-4e30-9923-7482aa8c3782",49,4,1,73,"CP","CP",13,"both",1e+09,5,10,"top","trial",10,"large - DR","large","5-10",0,0,0,999999990,0
+"a294a966-47ea-425b-a09f-4c9a60599264",55,4,1,11,"CP","CP",1,"top",5,11,5,"bottom","trial",11,"large - DR","large","5-11",0,0,0,-6,0
+"a294a966-47ea-425b-a09f-4c9a60599264",55,4,1,11,"CP","CP",2,"top",3,3,1,"top","trial",3,"small","small","1-3",1,1,1,0,1
+"a294a966-47ea-425b-a09f-4c9a60599264",55,4,1,11,"CP","CP",4,"top",11,10,11,"top","trial",11,"large - NDR","large","10-11",1,1,1,0,1
+"a294a966-47ea-425b-a09f-4c9a60599264",55,4,1,11,"CP","CP",5,"bottom",2,2,1,"bottom","trial",2,"small","small","1-2",1,1,1,0,1
+"a294a966-47ea-425b-a09f-4c9a60599264",55,4,1,11,"CP","CP",7,"top",6,6,12,"top","trial",12,"large - DR","large","6-12",1,0,1,-6,0
+"a294a966-47ea-425b-a09f-4c9a60599264",55,4,1,11,"CP","CP",8,"top",10,10,9,"top","trial",10,"large - NDR","large","9-10",1,1,1,0,1
+"a294a966-47ea-425b-a09f-4c9a60599264",55,4,1,11,"CP","CP",10,"top",14,11,12,"top","trial",12,"large - NDR","large","11-12",1,0,1,2,0
+"a294a966-47ea-425b-a09f-4c9a60599264",55,4,1,11,"CP","CP",11,"bottom",3,2,3,"bottom","trial",3,"small","small","2-3",1,1,1,0,1
+"a294a966-47ea-425b-a09f-4c9a60599264",55,4,1,11,"CP","CP",13,"top",10,5,10,"top","trial",10,"large - DR","large","5-10",1,1,1,0,1
+"aaf1ba36-93d5-42d6-9853-0a89e9711909",59,4,1,12,"CP","CP",1,NA,6,11,5,"bottom","trial",11,"large - DR","large","5-11",0,0,0,-5,0
+"aaf1ba36-93d5-42d6-9853-0a89e9711909",59,4,1,12,"CP","CP",2,NA,9,3,1,"top","trial",3,"small","small","1-3",0,0,0,6,0
+"aaf1ba36-93d5-42d6-9853-0a89e9711909",59,4,1,12,"CP","CP",4,NA,9,10,11,"top","trial",11,"large - NDR","large","10-11",0,0,0,-2,0
+"aaf1ba36-93d5-42d6-9853-0a89e9711909",59,4,1,12,"CP","CP",5,NA,7,2,1,"bottom","trial",2,"small","small","1-2",0,0,0,5,0
+"aaf1ba36-93d5-42d6-9853-0a89e9711909",59,4,1,12,"CP","CP",7,NA,5,6,12,"top","trial",12,"large - DR","large","6-12",0,0,0,-7,0
+"aaf1ba36-93d5-42d6-9853-0a89e9711909",59,4,1,12,"CP","CP",8,NA,6,10,9,"top","trial",10,"large - NDR","large","9-10",0,0,0,-4,0
+"aaf1ba36-93d5-42d6-9853-0a89e9711909",59,4,1,12,"CP","CP",10,NA,1,11,12,"top","trial",12,"large - NDR","large","11-12",0,0,0,-11,0
+"aaf1ba36-93d5-42d6-9853-0a89e9711909",59,4,1,12,"CP","CP",11,NA,2,2,3,"bottom","trial",3,"small","small","2-3",0,0,0,-1,1
+"aaf1ba36-93d5-42d6-9853-0a89e9711909",59,4,1,12,"CP","CP",13,NA,2,5,10,"top","trial",10,"large - DR","large","5-10",0,0,0,-8,0
+"536cb3db-0885-4bc2-aaca-ab7d9b2fde2f",62,5,1,13,"CP","CP",1,"both",18,11,5,"bottom","trial",11,"large - DR","large","5-11",0,0,0,7,0
+"536cb3db-0885-4bc2-aaca-ab7d9b2fde2f",62,5,1,13,"CP","CP",2,"both",13,3,1,"top","trial",3,"small","small","1-3",0,0,0,10,0
+"536cb3db-0885-4bc2-aaca-ab7d9b2fde2f",62,5,1,13,"CP","CP",4,"top",12,10,11,"top","trial",11,"large - NDR","large","10-11",1,0,1,1,1
+"536cb3db-0885-4bc2-aaca-ab7d9b2fde2f",62,5,1,13,"CP","CP",5,"bottom",2,2,1,"bottom","trial",2,"small","small","1-2",1,1,1,0,1
+"536cb3db-0885-4bc2-aaca-ab7d9b2fde2f",62,5,1,13,"CP","CP",7,NA,12,6,12,"top","trial",12,"large - DR","large","6-12",0,1,1,0,1
+"536cb3db-0885-4bc2-aaca-ab7d9b2fde2f",62,5,1,13,"CP","CP",8,NA,10,10,9,"top","trial",10,"large - NDR","large","9-10",0,1,1,0,1
+"536cb3db-0885-4bc2-aaca-ab7d9b2fde2f",62,5,1,13,"CP","CP",10,"top",16,11,12,"top","trial",12,"large - NDR","large","11-12",1,0,1,4,0
+"536cb3db-0885-4bc2-aaca-ab7d9b2fde2f",62,5,1,13,"CP","CP",11,NA,3,2,3,"bottom","trial",3,"small","small","2-3",0,1,1,0,1
+"536cb3db-0885-4bc2-aaca-ab7d9b2fde2f",62,5,1,13,"CP","CP",13,"top",10,5,10,"top","trial",10,"large - DR","large","5-10",1,1,1,0,1
+"aa9f0fac-fe54-47a0-ac01-fca5d7dce6be",54,4,1,9,"CP","CP",1,"bottom",8,11,5,"bottom","trial",11,"large - DR","large","5-11",1,0,1,-3,0
+"aa9f0fac-fe54-47a0-ac01-fca5d7dce6be",54,4,1,9,"CP","CP",2,"top",3,3,1,"top","trial",3,"small","small","1-3",1,1,1,0,1
+"aa9f0fac-fe54-47a0-ac01-fca5d7dce6be",54,4,1,9,"CP","CP",3,"top",11,10,11,"top","trial",11,"large - NDR","large","10-11",1,1,1,0,1
+"aa9f0fac-fe54-47a0-ac01-fca5d7dce6be",54,4,1,9,"CP","CP",4,"bottom",2,2,1,"bottom","trial",2,"small","small","1-2",1,1,1,0,1
+"aa9f0fac-fe54-47a0-ac01-fca5d7dce6be",54,4,1,9,"CP","CP",5,"top",10,10,9,"top","trial",10,"large - NDR","large","9-10",1,1,1,0,1
+"aa9f0fac-fe54-47a0-ac01-fca5d7dce6be",54,4,1,9,"CP","CP",6,"top",12,6,12,"top","trial",12,"large - DR","large","6-12",1,1,1,0,1
+"aa9f0fac-fe54-47a0-ac01-fca5d7dce6be",54,4,1,9,"CP","CP",7,"bottom",3,2,3,"bottom","trial",3,"small","small","2-3",1,1,1,0,1
+"aa9f0fac-fe54-47a0-ac01-fca5d7dce6be",54,4,1,9,"CP","CP",8,"top",12,11,12,"top","trial",12,"large - NDR","large","11-12",1,1,1,0,1
+"aa9f0fac-fe54-47a0-ac01-fca5d7dce6be",54,4,1,9,"CP","CP",9,"top",10,5,10,"top","trial",10,"large - DR","large","5-10",1,1,1,0,1
