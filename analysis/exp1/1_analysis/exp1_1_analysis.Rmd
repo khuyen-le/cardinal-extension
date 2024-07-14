@@ -1,12 +1,14 @@
 ---
-title: "Exp1"
-output: html_document
+title: "Cardinal Extension - Exp1"
+output: 
+  html_document: 
+    toc: true
+    toc_float: true
 date: "2023-03-13"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = FALSE,
   warning = FALSE
 )
 library('tidyverse')
@@ -16,8 +18,16 @@ library('lubridate')
 library('ggplot2')
 library('lme4')
 library('car')
+library('report')
+library('ggthemes')
+library('emmeans')
+
+library('cowplot')
 
 theme_set(theme_classic())
+
+# The palette with black:
+cbPalette <- c("#E69F00", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#56B4E9", "#CC79A7", "#000000")
 ```
 
 ```{r get data}
@@ -25,6 +35,7 @@ df.ppt_raw <- read.csv('../../../data/exp1/PROCESSED_DATA/exp1_ppt.csv')
 df.trial_raw <- read.csv('../../../data/exp1/PROCESSED_DATA/exp1_trial.csv')
 ```
 
+## Exclusions
 ```{r exclusions}
 #exclusions go here (or in a separate thing)
 # exclude participants who missed more than 1 trial (completed fewer than 5)
@@ -38,13 +49,40 @@ ppt_excluded_completion <- df.trial_raw %>%
 df.ppt <- df.ppt_raw %>%
   filter(!id %in% ppt_excluded_completion)
 
+exclude <- df.trial_raw %>%
+  filter(exclude == "Y") %>%
+  count() %>%
+  pull(n)
+
 df.trial <- df.trial_raw %>%
-  filter(!id %in% ppt_excluded_completion)
+  filter(!id %in% ppt_excluded_completion) %>%
+  filter(exclude != "Y") 
+```
+
+```{r refactor}
+df.trial <- df.trial %>% 
+  mutate(knower_level_cp_subset = factor(knower_level_cp_subset, levels = c("subset", "CP")),
+         magnitude = factor(magnitude, levels = c("small", "large")))
+
 ```
 
 ## Demographics Stats
 
 ```{r summarize ppt}
+df.ppt_knower_level <- df.ppt %>%
+  count(knower_level_cp_subset)
+
+df.ppt_knower_level_gender <- df.ppt %>%
+  count(knower_level_cp_subset, gender)
+
+df.ppt_summary <- df.ppt %>%
+  group_by(knower_level_cp_subset) %>%
+  summarise(mean_age = mean(age_years_cont),
+            sd_age = sd(age_years_cont), 
+            min_age = min(age_years_cont), 
+            max_age = max(age_years_cont))
+  
+
 df.ppt %>%
   count(age_years) %>%
   knitr::kable()
@@ -56,12 +94,28 @@ df.ppt %>%
 df.ppt %>%
   count(knower_level_cp_subset, age_years) %>%
   knitr::kable()
+
+df.ppt %>%
+  count(knower_level_cp_subset, gender) %>%
+  knitr::kable()
+
+df.ppt %>%
+  group_by(knower_level_cp_subset) %>%
+  summarise(min_age = min(age_months), 
+            max_age = max(age_months), 
+            mean_age = mean(age_years_cont), 
+            sd_age = sd(age_years_cont))
 ```
 
+How many kids did not count?
+
 ```{r}
-# df.trial <- df.trial %>%
-#   mutate(correct_count_no_na = ifelse(is.na(correct_count), 0, 1), 
-#          correct_count_approx_no_na = ifelse(is.na(correct_count_approx), 0, 1)) 
+response_without_counting <- df.trial %>% 
+  filter(!is.na(count) & is.na(set_chosen)) %>%
+  group_by(knower_level_cp_subset, magnitude) %>%
+  count()
+
+response_without_counting
 ```
 
 ## Results
@@ -70,161 +124,27 @@ df.ppt %>%
 
 Combining both overt set selection and correct counting (participants are correct if they've selected the correct set, or counted correctly.)
 
+#### Descriptive Stats 
+```{r}
+df.summary_knower_level_correct_set_chosen <- df.trial %>%
+  group_by(knower_level_cp_subset) %>%
+  summarise(mean = mean(correct_set_chosen), sd = sd(correct_set_chosen))
+df.summary_knower_level_correct_set_chosen
+
+df.summary_magnitude_correct_set_chosen <- df.trial %>%
+  group_by(magnitude) %>%
+  summarise(mean = mean(correct_set_chosen), sd = sd(correct_set_chosen))
+df.summary_magnitude_correct_set_chosen
+
+df.summary_magnitude_correct_set_chosen <- df.trial %>%
+  group_by(magnitude) %>%
+  summarise(mean = mean(correct_set_chosen), sd = sd(correct_set_chosen))
+df.summary_magnitude_correct_set_chosen
+```
+
 #### By trial
 
 Doesn't seem to be any differences between small and large sets, only between CP and subset knowers.
-
-```{r}
-ggplot(data = df.trial, 
-       mapping = aes(x = knower_level_cp_subset, y = correct_set_chosen_or_correct_count)) + 
-  geom_jitter(aes(color = id), 
-              height = 0, 
-              alpha = 0.5) +  
-  stat_summary(fun.data = "mean_cl_boot", 
-               geom = "pointrange") +
-    facet_grid(~ magnitude) + 
-  theme(legend.position = "none")
-
-ggplot(data = df.trial, 
-       mapping = aes(x = age_years, y = correct_set_chosen_or_correct_count)) + 
-  geom_jitter(aes(color = id), 
-              height = 0, 
-              alpha = 0.5) +  
-  stat_summary(fun.data = "mean_cl_boot", 
-               geom = "pointrange") +
-  theme(legend.position = "none")
-
-ggplot(data = df.trial, 
-       mapping = aes(x = knower_level_cp_subset, y = correct_set_chosen_or_correct_count, fill = knower_level_cp_subset)) + 
-  geom_jitter(aes(group = id), 
-              height = 0, 
-              alpha = 0.5) +  
-  geom_bar(stat = "summary", 
-           fun.y = "mean") +
-  stat_summary(fun.data = "mean_cl_boot", 
-               geom = "pointrange") +
-    geom_jitter(aes(group = id), 
-              height = 0, 
-              alpha = 0.3) +  
-  facet_grid(magnitude ~ age_years) + 
-  theme(legend.position = "none") + 
-  labs(y = "Cardinal extension success (by trial)", 
-       x = "Knower Level") 
-```
-
-#### By participant
-
-Each dot is a participant. Accurracy in set chosen against age (years, continuous) looks linear.
-
-```{r}
-ggplot(data = df.trial %>%
-         group_by(id, magnitude, knower_level_cp_subset) %>%
-         summarise(mean_correct_set_or_count = mean(correct_set_chosen_or_correct_count, na.rm = TRUE)),
-       mapping = aes(x = knower_level_cp_subset, y = mean_correct_set_or_count)) + 
-  geom_violin(aes(fill = knower_level_cp_subset)) +
-  geom_jitter(height = 0, 
-              alpha = 0.5) +  
-  stat_summary(fun.data = "mean_cl_boot", 
-               geom = "pointrange") +
-    facet_grid(~ magnitude) + 
-  theme(legend.position = "none") + 
-  labs(y = "Mean cardinal extension success (by participant)", 
-       x = "Knower Level") 
-
-ggplot(data = df.trial %>%
-         group_by(id, magnitude, knower_level_cp_subset, age_years_cont) %>%
-         summarise(mean_correct_set = mean(correct_set_chosen, na.rm = TRUE)), 
-       mapping = aes(x = age_years_cont, y = mean_correct_set)) + 
-  geom_point()+
-  geom_smooth(method='lm') +
-  theme(legend.position = "none")
-```
-
-
-```{r}
-ggplot(data = df.trial %>%
-         filter(knower_level_cp_subset == "CP") %>%
-         group_by(id, magnitude, knower_level_cp_subset) %>%
-         summarise(mean_correct_set_or_count = mean(correct_set_chosen_or_correct_count, na.rm = TRUE)),
-       mapping = aes(x = knower_level_cp_subset, y = mean_correct_set_or_count)) + 
-  geom_violin(aes(fill = knower_level_cp_subset)) +
-  geom_jitter(height = 0, 
-              alpha = 0.5) +  
-  stat_summary(fun.data = "mean_cl_boot", 
-               geom = "pointrange") +
-    facet_grid(~ magnitude) + 
-  theme(legend.position = "none") + 
-  labs(y = "Mean cardinal extension success (by participant)", 
-       x = "Knower Level") 
-```
-
-### Regressions
-
-#### Base model
-correct_set_chosen_or_correct_count ~ magnitude + age_zscored + (1|id) + (1|trial_ratio)
-Effect of age
-
-```{r}
-#registered
-#only age has an effect
-#z-scored age based on previous work
-fit.base <- glmer(correct_set_chosen_or_correct_count ~ magnitude + age_zscored + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
-summary(fit.base)
-Anova(fit.base, type = 3)
-```
-
-#### Not registered: CP knowledge + magnitude, no age
-correct_set_chosen_or_correct_count ~ knower_level_cp_subset + magnitude + (1|id) + (1|trial_ratio)
-Effect of knower level, no effect of magnitude.
-***??? Model failed to converge
-
-```{r}
-#not registered
-fit.cp <- glmer(correct_set_chosen_or_correct_count ~ knower_level_cp_subset + magnitude + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
-summary(fit.cp)
-Anova(fit.cp, type = 3)
-```
-
-#### Registered: CP knowledge + magnitude + age
-correct_set_chosen_or_correct_count ~ knower_level_cp_subset + magnitude + age_zscored + (1|id) + (1|trial_ratio)
-Effect of age, no effect of KL or magnitude.
-
-```{r}
-# knower level effect is wiped out by age effects
-fit.cp_age <- glmer(correct_set_chosen_or_correct_count ~ knower_level_cp_subset + magnitude + age_zscored + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
-summary(fit.cp_age)
-Anova(fit.cp_age, type = 3)
-```
-
-#### Not registered: CP knowledge * magnitude, no age
-correct_set_chosen_or_correct_count ~ knower_level_cp_subset * magnitude + (1|id) + (1|trial_ratio)
-Effect of KL, no interaction.
-
-```{r}
-#not registered
-fit.cp_int <- glmer(correct_set_chosen_or_correct_count ~ knower_level_cp_subset * magnitude + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
-summary(fit.cp_int)
-Anova(fit.cp_int, type = 3)
-```
-
-#### Registered: CP knowledge * magnitude + age
-correct_set_chosen_or_correct_count ~ knower_level_cp_subset * magnitude + age_zscored + (1|id) + (1|trial_ratio)
-Effect of age, no effect of KL or magnitude or interaction.
-
-```{r}
-fit.cp_age_int <- glmer(correct_set_chosen_or_correct_count ~ knower_level_cp_subset * magnitude + age_zscored + (1|id) + (1|trial_ratio), 
-                        data = df.trial, 
-                        family="binomial")
-summary(fit.cp_age_int)
-Anova(fit.cp_age_int, type = 3)
-```
-
-
-### Correct set chosen (only overt selection of set)
-
-#### By trial
-
-Higher overt correct set chosen for large sets compared to small sets. This makes sense because some participants are able to subitize small sets without pointing to the screen and count (and the prompt might not be clear enough for them to do this overtly).
 
 ```{r}
 ggplot(data = df.trial, 
@@ -247,7 +167,275 @@ ggplot(data = df.trial,
   theme(legend.position = "none")
 
 ggplot(data = df.trial, 
-       mapping = aes(x = age_years, y = correct_set_chosen)) + 
+       mapping = aes(x = knower_level_cp_subset, y = correct_set_chosen, fill = knower_level_cp_subset)) + 
+  geom_jitter(aes(group = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  geom_bar(stat = "summary", 
+           fun.y = "mean") +
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+    geom_jitter(aes(group = id), 
+              height = 0, 
+              alpha = 0.3) +  
+  facet_grid(magnitude ~ age_years) + 
+  theme(legend.position = "none") + 
+  labs(y = "Cardinal extension success (by trial)", 
+       x = "Knower Level") 
+```
+
+#### By participant
+
+Each dot is a participant. Accurracy in set chosen against age (years, continuous) looks linear.
+
+```{r}
+plot1 <- ggplot(data = df.trial %>%
+         mutate(magnitude = factor(magnitude, levels = c("small", "large"), labels = c("small sets", "large sets")), 
+                         knower_level_cp_subset = factor(knower_level_cp_subset, levels = c("subset", "CP"))) %>%
+         group_by(id, magnitude, knower_level_cp_subset) %>%
+         summarise(mean_correct_set_chosen = mean(correct_set_chosen, na.rm = TRUE)),
+       mapping = aes(x = knower_level_cp_subset, y = mean_correct_set_chosen)) + 
+  geom_violin(aes(fill = knower_level_cp_subset)) +
+  geom_jitter(height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+    facet_grid(~ magnitude) + 
+    scale_fill_manual(values=cbPalette) + 
+  geom_hline(yintercept = 0.5, linetype = 2) +
+  theme(legend.position = "none") + 
+  labs(y = "Prop. of correct set choice", 
+       x = "Knower Level") 
+
+ggplot(data = df.trial %>%
+         group_by(id, magnitude, knower_level_cp_subset, age_years_cont) %>%
+         summarise(mean_correct_set_chosen = mean(correct_set_chosen, na.rm = TRUE)), 
+       mapping = aes(x = age_years_cont, y = mean_correct_set_chosen)) + 
+  geom_point()+
+  geom_smooth(method='lm') +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial %>%
+                  mutate(knower_level_cp_subset = factor(knower_level_cp_subset, levels = c("subset", "CP")))%>%
+          mutate(magnitude = factor(magnitude, levels = c("small", "large"), labels = c("small sets", "large sets"))) %>%
+         group_by(id, magnitude, knower_level_cp_subset, age_years_cont) %>%
+         summarise(mean_correct_set_chosen = mean(correct_set_chosen, na.rm = TRUE)), 
+       mapping = aes(x = age_years_cont, y = mean_correct_set_chosen, 
+                     color = knower_level_cp_subset)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  facet_grid(~magnitude) +
+  ylim(0, 1) +
+  geom_smooth(method='lm', aes(fill = knower_level_cp_subset)) +
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) +
+  labs(x = "Age (years)",
+       y = "Prop. of correct set choice", 
+       fill = "", 
+       color = "") +
+  geom_hline(yintercept = 0.5, linetype = "dashed") + 
+  theme(text = element_text(size=13), 
+        legend.position="none") 
+
+```
+
+
+```{r}
+ggplot(data = df.trial %>%
+         filter(knower_level_cp_subset == "CP") %>%
+         group_by(id, magnitude, knower_level_cp_subset) %>%
+         summarise(mean_correct_set_chosen = mean(correct_set_chosen, na.rm = TRUE)),
+       mapping = aes(x = knower_level_cp_subset, y = mean_correct_set_chosen)) + 
+  geom_violin(aes(fill = knower_level_cp_subset)) +
+  geom_jitter(height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+    facet_grid(~ magnitude) + 
+  theme(legend.position = "none") + 
+  labs(y = "Mean cardinal extension success (by participant)", 
+       x = "Knower Level") 
+```
+
+Only 65% of CP-knowers were above chance (following binomial p < .05 --> chose correctly at least 5 out of 6 trials).
+```{r}
+df.trial_summary <- df.trial %>%
+         group_by(id, knower_level_cp_subset) %>%
+         summarise(mean_correct_set = mean(correct_set_chosen, na.rm = TRUE)) %>%
+  group_by(knower_level_cp_subset) %>%
+  summarise(n_total = n(),
+            n_succeed = length(id[mean_correct_set == 6/6]), 
+            prop_succeed =n_succeed / n_total)
+
+df.trial_summary
+```
+
+#### T-tests
+```{r}
+t.test(df.trial %>% 
+         filter(knower_level_cp_subset == "subset") %>%
+         pull(correct_set_chosen),
+       mu = 0.5)
+#$statistic
+#$parameter
+#$p.values
+
+report(t.test(df.trial %>% 
+         filter(knower_level_cp_subset == "CP") %>%
+         pull(correct_set_chosen),
+       mu = 0.5))
+
+report(t.test(df.trial %>% 
+         filter(magnitude == "small") %>%
+         pull(correct_set_chosen),
+       mu = 0.5))
+
+report(t.test(df.trial %>% 
+         filter(magnitude == "large") %>%
+         pull(correct_set_chosen),
+       mu = 0.5))
+
+report(t.test(df.trial %>% 
+         filter(knower_level_cp_subset == "CP", magnitude == "small") %>%
+         pull(correct_set_chosen),
+       df.trial %>% 
+         filter(knower_level_cp_subset == "subset", magnitude == "small") %>%
+         pull(correct_set_chosen)))
+
+report(t.test(df.trial %>% 
+         filter(knower_level_cp_subset == "CP", magnitude == "large") %>%
+         pull(correct_set_chosen),
+       df.trial %>% 
+         filter(knower_level_cp_subset == "subset", magnitude == "large") %>%
+         pull(correct_set_chosen)))
+```
+
+#### Regressions
+
+##### Base model
+correct_set_chosen ~ magnitude + age_zscored + (1|id) + (1|quantity)
+Effect of age
+
+```{r}
+#registered
+#only age has an effect
+#z-scored age based on previous work
+fit.base <- glmer(correct_set_chosen ~ magnitude + age_zscored + (1|id) 
+                + (1|trial_ratio)
+                  , 
+                  data = df.trial, family="binomial")
+summary(fit.base)
+report(fit.base)
+Anova(fit.base, type = 3)
+```
+
+```{r}
+#not-registered
+#split by knower level
+fit.base_cp <- glmer(correct_set_chosen ~ magnitude + age_zscored + (1|id) 
+                     + (1|trial_ratio)
+                     , 
+                     data = df.trial %>% filter(knower_level_cp_subset == "CP"), 
+                     family="binomial")
+summary(fit.base_cp)
+Anova(fit.base_cp, type = 3)
+
+fit.base_subset <- glmer(correct_set_chosen ~ magnitude + age_zscored + (1|id) 
+                         #+ (1|trial_ratio)
+                      , 
+                     data = df.trial %>% filter(knower_level_cp_subset == "subset"), 
+                     family="binomial")
+summary(fit.base_subset)
+report(fit.base_subset)
+Anova(fit.base_subset, type = 3)
+```
+
+##### Not registered: CP knowledge + magnitude, no age
+correct_set_chosen ~ knower_level_cp_subset + magnitude + (1|id) + (1|trial_ratio)
+Effect of knower level, no effect of magnitude.
+**??? Model failed to converge**: Probably need to take out trial_ratio as a random effect? Maybe it's correlating too much with magnitude. 
+
+```{r}
+#not registered
+fit.cp <- glmer(correct_set_chosen ~ knower_level_cp_subset + magnitude + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
+summary(fit.cp)
+report(fit.cp)
+Anova(fit.cp, type = 3)
+anova(fit.cp, fit.base, type = 3)
+```
+
+##### Registered: CP knowledge + magnitude + age
+correct_set_chosen ~ knower_level_cp_subset + magnitude + age_zscored + (1|id) + (1|trial_ratio)
+Effect of age, no effect of KL or magnitude.
+**Model fail to converge**
+
+```{r}
+# knower level effect is wiped out by age effects
+fit.cp_age <- glmer(correct_set_chosen ~ age_zscored + magnitude + knower_level_cp_subset + (1|id) 
+                    + (1|trial_ratio)
+                    , data = df.trial, family="binomial")
+summary(fit.cp_age)
+report(fit.cp_age)
+Anova(fit.cp_age, type = 3)
+anova(fit.cp_age, fit.base, type=3)
+```
+
+##### Not registered: CP knowledge * magnitude, no age
+correct_set_chosen ~ knower_level_cp_subset * magnitude + (1|id) + (1|trial_ratio)
+Effect of KL, no interaction.
+
+```{r}
+#not registered
+fit.cp_int <- glmer(correct_set_chosen ~ knower_level_cp_subset * magnitude + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
+summary(fit.cp_int)
+Anova(fit.cp_int, type = 3)
+```
+
+##### Registered: CP knowledge * magnitude + age
+correct_set_chosen ~ knower_level_cp_subset * magnitude + age_zscored + (1|id) + (1|trial_ratio)
+Effect of age, no effect of KL or magnitude or interaction.
+
+```{r}
+fit.cp_age_int <- glmer(correct_set_chosen ~ age_zscored + magnitude * knower_level_cp_subset + (1|id) 
+                        + (1|trial_ratio)
+                        , 
+                        data = df.trial, 
+                        family="binomial")
+summary(fit.cp_age_int)
+report(fit.cp_age_int)
+Anova(fit.cp_age_int, type = 3)
+anova(fit.cp_age_int, fit.cp_age, type = 3)
+```
+
+
+### Correct set chosen (only overt selection of set)
+
+#### By trial
+
+Higher overt correct set chosen for large sets compared to small sets. This makes sense because some participants are able to subitize small sets without pointing to the screen and count (and the prompt might not be clear enough for them to do this overtly).
+
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(x = knower_level_cp_subset, y = strict_correct_set_chosen)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+    facet_grid(~ magnitude) + 
+  theme(legend.position = "none")
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = strict_correct_set_chosen)) + 
+  geom_jitter(aes(color = id), 
+              height = 0, 
+              alpha = 0.5) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none")
+
+ggplot(data = df.trial, 
+       mapping = aes(x = age_years, y = strict_correct_set_chosen)) + 
   geom_jitter(aes(color = id), 
               height = 0, 
               alpha = 0.5) +  
@@ -267,8 +455,8 @@ Each dot is a participant. Accurracy in set chosen against age (months) looks li
 ```{r}
 ggplot(data = df.trial %>%
          group_by(id, magnitude, knower_level_cp_subset) %>%
-         summarise(mean_correct_set = mean(correct_set_chosen, na.rm = TRUE)), 
-       mapping = aes(x = knower_level_cp_subset, y = mean_correct_set)) + 
+         summarise(mean_strict_correct_set = mean(strict_correct_set_chosen, na.rm = TRUE)), 
+       mapping = aes(x = knower_level_cp_subset, y = mean_strict_correct_set)) + 
   geom_violin(aes(fill = knower_level_cp_subset)) +
   geom_jitter(height = 0, 
               alpha = 0.5) +  
@@ -279,20 +467,45 @@ ggplot(data = df.trial %>%
 
 ggplot(data = df.trial %>%
          group_by(id, magnitude, knower_level_cp_subset, age_months) %>%
-         summarise(mean_correct_set = mean(correct_set_chosen, na.rm = TRUE)), 
-       mapping = aes(x = age_months, y = mean_correct_set)) + 
+         summarise(mean_strict_correct_set = mean(strict_correct_set_chosen, na.rm = TRUE)), 
+       mapping = aes(x = age_months, y = mean_strict_correct_set)) + 
   geom_point()+
   geom_smooth(method='lm') +
   theme(legend.position = "none")
 ```
 
-### Correct count
+### Correct count when correct set was chosen
+
+#### Descriptive Stats 
+```{r}
+df.summary_knower_level_correct_count <- df.trial %>%
+  group_by(knower_level_cp_subset) %>%
+  summarise(mean = mean(correct_count_when_correct_set_chosen), sd = sd(correct_count_when_correct_set_chosen))
+df.summary_knower_level_correct_count
+
+df.summary_magnitude_correct_count <- df.trial %>%
+  group_by(knower_level_cp_subset, magnitude) %>%
+  summarise(mean = mean(correct_count_when_correct_set_chosen), sd = sd(correct_count_when_correct_set_chosen))
+df.summary_magnitude_correct_count
+```
+
+```{r}
+df.trial_summary_count <- df.trial %>%
+         group_by(id, knower_level_cp_subset) %>%
+         summarise(mean_correct_count_when_correct_set_chosen = mean(correct_count_when_correct_set_chosen, na.rm = TRUE)) %>%
+  group_by(knower_level_cp_subset) %>%
+  summarise(n_total = n(),
+            n_succeed = length(id[mean_correct_count_when_correct_set_chosen <= 3/6]), 
+            prop_succeed =n_succeed / n_total)
+
+df.trial_summary_count
+```
 
 #### By trial
 
 ```{r}
 ggplot(data = df.trial, 
-       mapping = aes(x = knower_level_cp_subset, y = correct_count)) +
+       mapping = aes(x = knower_level_cp_subset, y = correct_count_when_correct_set_chosen)) +
   geom_jitter(aes(color = id), 
               height = 0, 
               alpha = 0.5) +  
@@ -302,7 +515,7 @@ ggplot(data = df.trial,
   theme(legend.position = "none")
 
 ggplot(data = df.trial, 
-       mapping = aes(x = age_years, y = correct_count)) + 
+       mapping = aes(x = age_years, y = correct_count_when_correct_set_chosen)) + 
   geom_jitter(aes(color = id), 
               height = 0, 
               alpha = 0.5) +  
@@ -311,7 +524,7 @@ ggplot(data = df.trial,
   theme(legend.position = "none")
 
 ggplot(data = df.trial, 
-       mapping = aes(x = age_years, y = correct_count)) + 
+       mapping = aes(x = age_years, y = correct_count_when_correct_set_chosen)) + 
   geom_jitter(aes(color = id), 
               height = 0, 
               alpha = 0.5) +  
@@ -329,9 +542,11 @@ ggplot(data = df.trial,
 All children are better at counting small sets compared to large sets, while there is no difference in performance of selecting the correct set. So either: 1) They are doing cardinal extension, but are making errors in the counting due to the larger set, or 2) The good performance for choosing the correct set just reflects mapping of animals to a side -- once the animals are gone, they just select the corresponding side without understanding the quantity relationship between the items and the animals.
 
 ```{r}
-ggplot(data = df.trial %>%
+plot2 <- ggplot(data = df.trial %>%
          group_by(id, magnitude, knower_level_cp_subset) %>%
-         summarise(mean_correct_count = mean(correct_count, na.rm = TRUE)), 
+         mutate(magnitude = factor(magnitude, levels = c("small", "large"), labels = c("small sets", "large sets")), 
+                         knower_level_cp_subset = factor(knower_level_cp_subset, levels = c("subset", "CP"))) %>%
+         summarise(mean_correct_count = mean(correct_count_when_correct_set_chosen, na.rm = TRUE)), 
        mapping = aes(x = knower_level_cp_subset, y = mean_correct_count)) + 
   geom_violin(aes(fill = knower_level_cp_subset)) +
   geom_jitter(height = 0, 
@@ -339,17 +554,137 @@ ggplot(data = df.trial %>%
   stat_summary(fun.data = "mean_cl_boot", 
                geom = "pointrange") +
     facet_grid(~ magnitude) + 
-  theme(legend.position = "none")
+  scale_fill_manual(values=cbPalette) + 
+  theme(legend.position = "none") + 
+  labs(y = "Prop. of correct numerical response", 
+       x = "Knower Level") 
 
 ggplot(data = df.trial %>%
          group_by(id, magnitude, knower_level_cp_subset, age_months) %>%
-         summarise(mean_correct_count = mean(correct_count, na.rm = TRUE)), 
+         summarise(mean_correct_count = mean(correct_count_when_correct_set_chosen, na.rm = TRUE)), 
        mapping = aes(x = age_months, y = mean_correct_count)) + 
   geom_point()+
   geom_smooth(method='lm') +
   theme(legend.position = "none")
+
+ ggplot(data = df.trial %>%
+          mutate(magnitude = factor(magnitude, levels = c("small", "large"), labels = c("small sets", "large sets"))) %>%
+         group_by(id, magnitude, knower_level_cp_subset, age_years_cont) %>%
+         summarise(mean_correct_count = mean(correct_count_when_correct_set_chosen, na.rm = TRUE)), 
+       mapping = aes(x = age_years_cont, y = mean_correct_count, 
+                     color = knower_level_cp_subset)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  facet_grid(~magnitude) +
+  ylim(0, 1) +
+  geom_smooth(method='lm', aes(fill = knower_level_cp_subset)) +
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) +
+  labs(x = "Age (years)",
+       y = "Prop. correct numerical response", 
+       fill = "Knower Level", 
+       color = "Knower Level") +
+  geom_hline(yintercept = 0.5, linetype = "dashed") + 
+  theme(text = element_text(size=12), 
+        legend.position="none")
+
+combined_plot <- plot_grid(plot1, plot2, labels = c('A', 'B'))
+legend <- get_legend(plot1 + 
+                       theme(legend.position = "bottom") )
+plot_grid(combined_plot, ncol=1,rel_heights = c(1, .1))
 ```
 
+#### T-tests
+```{r}
+
+report(t.test(df.trial %>% 
+         filter(knower_level_cp_subset == "CP") %>%
+         pull(correct_count_when_correct_set_chosen),
+       df.trial %>% 
+         filter(knower_level_cp_subset == "subset") %>%
+         pull(correct_count_when_correct_set_chosen)))
+
+report(t.test(df.trial %>% 
+         filter(knower_level_cp_subset == "CP", magnitude == "small") %>%
+         pull(correct_count_when_correct_set_chosen),
+       df.trial %>% 
+         filter(knower_level_cp_subset == "subset", magnitude == "small") %>%
+         pull(correct_count_when_correct_set_chosen)))
+
+report(t.test(df.trial %>% 
+         filter(knower_level_cp_subset == "CP", magnitude == "large") %>%
+         pull(correct_count_when_correct_set_chosen),
+       df.trial %>% 
+         filter(knower_level_cp_subset == "subset", magnitude == "large") %>%
+         pull(correct_count_when_correct_set_chosen)))
+```
+
+#### Regressions
+
+##### Base model
+correct_count_when_correct_set_chosen ~ magnitude + age_zscored + (1|id) + (1|trial_ratio)
+Effect of age
+
+```{r}
+#registered
+#only age has an effect
+#z-scored age based on previous work
+fit.base <- glmer(correct_count_when_correct_set_chosen ~ magnitude + age_zscored + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
+summary(fit.base)
+report(fit.base)
+Anova(fit.base, type = 3)
+```
+
+
+
+##### Registered: CP knowledge + magnitude + age
+correct_count_when_correct_set_chosen ~ CP knowledge + magnitude + age_zscored + (1|id) + (1|trial_ratio)
+Effect of age
+
+```{r}
+#registered
+#z-scored age based on previous work
+fit.cp_age <- glmer(correct_count_when_correct_set_chosen ~ knower_level_cp_subset + magnitude + age_zscored + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
+summary(fit.cp_age)
+report(fit.cp_age)
+Anova(fit.cp_age, type = 3)
+anova(fit.cp_age, fit.base, type = 3)
+```
+
+##### Registered: CP knowledge * magnitude + age
+correct_count_when_correct_set_chosen ~ CP knowledge * magnitude + age_zscored + (1|id) + (1|trial_ratio)
+Effect of age
+
+```{r}
+#registered
+#z-scored age based on previous work
+fit.cp_age_int <- glmer(correct_count_when_correct_set_chosen ~ knower_level_cp_subset * magnitude + age_zscored + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
+summary(fit.cp_age_int)
+report(fit.cp_age_int)
+Anova(fit.cp_age_int, type = 3)
+anova(fit.cp_age_int, fit.cp_age, type = 3)
+anova(fit.cp_age_int, fit.base, type = 3)
+```
+
+```{r}
+fit.cp_age_int %>% 
+  emmeans(specs = pairwise ~ knower_level_cp_subset * magnitude,
+          adjust = "bonferroni") %>% 
+  pluck("contrasts")
+```
+
+
+### Correct set but then wrong count 
+```{r}
+ggplot(data = df.trial %>%
+  filter(correct_count == 0 & correct_set_chosen == 1))
+    
+df.trial %>%
+  filter(correct_count == 0 & correct_set_chosen == 1) %>%
+  group_by(knower_level_cp_subset, magnitude) %>%
+  summarise(count = n())
+  
+```
 ### Approximate correct count
 
 When allowed for off by 1 error, the subset knowers are better but still worse than the CP knowers. This is not very informative anyway.
@@ -399,7 +734,7 @@ ggplot(data = df.trial %>%
 
 ```{r}
 ggplot(data = df.trial %>% 
-         select(magnitude, knower_level_cp_subset, correct_set_chosen, correct_count, correct_set_chosen_or_correct_count, correct_count_when_correct_set_chosen, correct_count_approx) %>%
+         select(magnitude, knower_level_cp_subset, correct_set_chosen, correct_count_when_correct_set_chosen) %>%
           pivot_longer(-c(magnitude, knower_level_cp_subset), names_to = "variable", values_to = "value"), 
        mapping = aes(x = knower_level_cp_subset, y = value, color = variable)) + 
   facet_grid(~magnitude) +
@@ -461,74 +796,89 @@ ggplot(data = df.trial,
 
 ### Highest count
 
+#### With correct_set_chosen
 Highest count does not explain additional variance.
 
 ```{r}
-fit.base_hc <- glmer(correct_set_chosen_or_correct_count ~ highest_count + magnitude + age_zscored + (1|id) + (1|trial_ratio), 
+fit.set_hc <- glmer(correct_set_chosen ~ age_zscored + magnitude + knower_level_cp_subset + highest_count + (1|id) 
+                       + (1|trial_ratio)
+                       , 
                      data = df.trial %>%
                                   filter(!is.na(highest_count)),
                                 family="binomial")
-summary(fit.base_hc)
-Anova(fit.base_hc, type = 3)
+summary(fit.set_hc)
+Anova(fit.set_hc, type = 3)
 
-fit.base_hc_comp <- glmer(correct_set_chosen_or_correct_count ~ magnitude + age_zscored + (1|id) + (1|trial_ratio), 
+fit.set_hc_comp <- glmer(correct_set_chosen ~ magnitude + age_zscored + knower_level_cp_subset + (1|id) 
+                          + (1|trial_ratio)
+                          , 
                      data = df.trial %>%
                                   filter(!is.na(highest_count)),
                                 family="binomial")
-summary(fit.base_hc_comp)
-Anova(fit.base_hc_comp, type = 3)
-anova(fit.base_hc, fit.base_hc_comp)
-#---------
-fit.cp_hc <- glmer(correct_set_chosen_or_correct_count ~ highest_count + knower_level_cp_subset + magnitude + (1|id) + (1|trial_ratio), 
-                   data = df.trial %>%
-                                  filter(!is.na(highest_count)),
-                                family="binomial")
-summary(fit.cp_hc)
-Anova(fit.cp_hc, type = 3)
+summary(fit.set_hc_comp)
+Anova(fit.set_hc_comp, type = 3)
+anova(fit.set_hc, fit.set_hc_comp)
 
-fit.cp_hc_comp <- glmer(correct_set_chosen_or_correct_count ~ knower_level_cp_subset + magnitude + (1|id) + (1|trial_ratio), data = df.trial %>%
-                                  filter(!is.na(highest_count)),
-                                family="binomial")
-summary(fit.cp_hc_comp)
-Anova(fit.cp_hc_comp, type = 3)
-anova(fit.cp_hc_comp, fit.cp_hc)
-
-#----------
-# knower level effect is wiped out by age effects
-fit.cp_age_hc <- glmer(correct_set_chosen_or_correct_count ~ highest_count + knower_level_cp_subset + magnitude + age_zscored + (1|id) + (1|trial_ratio),                    data = df.trial %>%
-                                  filter(!is.na(highest_count)),
-                                family="binomial")
-summary(fit.cp_age_hc)
-Anova(fit.cp_age_hc, type = 3)
-
-fit.cp_age_hc_comp <- glmer(correct_set_chosen_or_correct_count ~ knower_level_cp_subset + magnitude + age_zscored + (1|id) + (1|trial_ratio),                    data = df.trial %>%
-                                  filter(!is.na(highest_count)),
-                                family="binomial")
-summary(fit.cp_age_hc_comp)
-Anova(fit.cp_age_hc_comp, type = 3)
-anova(fit.cp_age_hc_comp, fit.cp_age_hc)
-
-fit.cp_int_hc <- glmer(correct_set_chosen_or_correct_count ~ highest_count + knower_level_cp_subset * magnitude + (1|id) + (1|trial_ratio),                    data = df.trial %>%
-                                  filter(!is.na(highest_count)),
-                                family="binomial")
-summary(fit.cp_int_hc)
-Anova(fit.cp_int_hc, type = 3)
-
-fit.cp_age_int_hc <- glmer(correct_set_chosen_or_correct_count ~ highest_count + knower_level_cp_subset * magnitude + age_zscored + (1|id) + (1|trial_ratio),                    data = df.trial %>%
-                                  filter(!is.na(highest_count)),
-                                family="binomial")
-summary(fit.cp_age_int_hc)
-Anova(fit.cp_age_int_hc, type = 3)
-
-fit.cp_age_int_hc_comp <- glmer(correct_set_chosen_or_correct_count ~ knower_level_cp_subset * magnitude + age_zscored + (1|id) + (1|trial_ratio), 
-                                data = df.trial %>%
-                                  filter(!is.na(highest_count)),
-                                family="binomial")
-summary(fit.cp_age_int_hc_comp)
-Anova(fit.cp_age_int_hc_comp, type = 3)
-anova(fit.cp_age_int_hc, fit.cp_age_int_hc_comp, type = 3)
-
-# fit.cp_age_hc_int <- glmer(correct_set_chosen_with_correct_count ~ highest_count * knower_level_cp_subset * magnitude + age_years + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
-# summary(fit.cp_age_hc_int)
-# Anova(fit.cp_age_int_hc, type = 3)
 ```
+
+```{r}
+# knower level effect is wiped out by age effects
+fit.set_hc_cp_only <- glmer(correct_set_chosen ~ highest_count + magnitude + age_zscored + (1|id) 
+                       #+ (1|trial_ratio)
+                       ,                    data = df.trial %>%
+                         filter(knower_level_cp_subset == "CP") %>%
+                                  filter(!is.na(highest_count)),
+                                family="binomial")
+summary(fit.set_hc_cp_only)
+Anova(fit.set_hc_cp_only, type = 3)
+
+fit.set_hc_cp_only_comp <- glmer(correct_set_chosen ~ magnitude + age_zscored + (1|id) 
+                       #+ (1|trial_ratio)
+                       ,                    data = df.trial %>%
+                         filter(knower_level_cp_subset == "CP") %>%
+                                  filter(!is.na(highest_count)),
+                                family="binomial")
+summary(fit.set_hc_cp_only_comp)
+Anova(fit.set_hc_cp_only_comp, type = 3)
+anova(fit.set_hc_cp_only, fit.set_hc_cp_only_comp, type = 3)
+
+```
+
+#### With correct_count
+
+```{r}
+fit.count_hc <- glmer(correct_count_when_correct_set_chosen ~ age_zscored + knower_level_cp_subset * magnitude + highest_count + (1|id) + (1|trial_ratio), 
+                     data = df.trial %>%
+                                  filter(!is.na(highest_count)),
+                                family="binomial")
+summary(fit.count_hc)
+Anova(fit.count_hc, type = 3)
+
+fit.count_hc_comp <- glmer(correct_count_when_correct_set_chosen ~ age_zscored + knower_level_cp_subset * magnitude + (1|id) + (1|trial_ratio), 
+                     data = df.trial %>%
+                                  filter(!is.na(highest_count)),
+                                family="binomial")
+summary(fit.count_hc_comp)
+Anova(fit.count_hc_comp, type = 3)
+anova(fit.count_hc, fit.count_hc_comp, type = 3)
+```
+
+```{r}
+fit.count_hc_cp_only <- glmer(correct_count_when_correct_set_chosen ~ age_zscored + magnitude + highest_count + (1|id) + (1|trial_ratio), 
+                     data = df.trial %>%
+                                  filter(!is.na(highest_count)) %>%
+                  filter(knower_level_cp_subset == "CP"),
+                                family="binomial")
+summary(fit.count_hc_cp_only)
+Anova(fit.count_hc_cp_only, type = 3)
+
+fit.count_hc_cp_only_comp <- glmer(correct_count_when_correct_set_chosen ~ age_zscored + magnitude + (1|id) + (1|trial_ratio), 
+                     data = df.trial %>%
+                                  filter(!is.na(highest_count))%>%
+                  filter(knower_level_cp_subset == "CP"),
+                                family="binomial")
+summary(fit.count_hc_cp_only_comp)
+Anova(fit.count_hc_cp_only_comp, type = 3)
+anova(fit.count_hc_cp_only, fit.count_hc_cp_only_comp, type = 3)
+```
+

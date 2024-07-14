@@ -1,0 +1,76 @@
+---
+title: "Cardinal Extension - Exp2 - Memory Check Follow-up"
+output: 
+  html_document: 
+    toc: true
+    toc_float: true
+date: "2024-04-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE
+)
+library('tidyverse')
+library("purrr")
+library("uuid")
+library('lubridate')
+library('ggplot2')
+library('lme4')
+library('car')
+library('emmeans')
+library('pbkrtest')
+library('chisq.posthoc.test')
+
+library('cowplot')
+
+library('VennDiagram')
+
+theme_set(theme_classic())
+
+cbPalette <- c("#E69F00", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#56B4E9", "#CC79A7", "#000000")
+```
+
+```{r get data}
+df.ppt <- read.csv('../../../data/exp2/PROCESSED_DATA/exp2.1_ppt.csv')
+df.trial <- read.csv('../../../data/exp2/PROCESSED_DATA/exp2.1_trial.csv')
+```
+
+## Demographics Stats
+
+```{r summarize ppt}
+df.ppt %>%
+  count(age_years) %>%
+  knitr::kable()
+
+df.ppt_gender <- df.ppt %>%
+  count(gender) %>%
+  knitr::kable()
+
+df.ppt %>%
+  summarise(min_age = min(age_years_cont), 
+            max_age = max(age_years_cont), 
+            mean_age = mean(age_years_cont), 
+            sd_age = sd(age_years_cont))
+```
+
+## Results
+
+### Cardinal extension operationalization
+
+How do we operationalize cardinal extension success? 
+
+### Correct Set Chosen
+
+#### Descriptive Statistics
+```{r}
+df.summary_magnitude_correct_set_chosen <- df.trial %>%
+  summarise(mean = mean(correct_set_chosen), sd = sd(correct_set_chosen))
+df.summary_magnitude_correct_set_chosen
+```
+
+```{r missing set?}
+df.summary_mising_set <- df.trial %>%
+  summarise(mean = mean(remember_missing_item), sd = sd(remember_missing_item))
+df.summary_mising_set
+```

@@ -1,12 +1,14 @@
 ---
-title: "Exp2"
-output: html_document
+title: "Cardinal Extension - Exp2"
+output: 
+  html_document: 
+    toc: true
+    toc_float: true
 date: "2023-05-31"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = FALSE,
   warning = FALSE
 )
 library('tidyverse')
@@ -17,8 +19,19 @@ library('ggplot2')
 library('lme4')
 library('car')
 library('emmeans')
+library('pbkrtest')
+library('chisq.posthoc.test')
+
+
+library('cowplot')
+
+library('VennDiagram')
+
+library('prmisc')
 
 theme_set(theme_classic())
+
+cbPalette <- c("#E69F00", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#56B4E9", "#CC79A7", "#000000")
 ```
 
 ```{r get data}
@@ -26,14 +39,14 @@ df.ppt_raw <- read.csv('../../../data/exp2/PROCESSED_DATA/exp2_ppt.csv')
 df.trial_raw <- read.csv('../../../data/exp2/PROCESSED_DATA/exp2_trial.csv')
 ```
 
-# Exclusions
-Exclude 3 kids who missed more than 1 trial (completed 7 or fewer trials out of 9). 
+## Exclusions
+Exclude 2 kids who missed more than 1 trial (completed 7 or fewer trials out of 9). 
 
-```{r exclusions}
-#exclusions go here (or in a separate thing)
-# exclude participants who missed more than 1 trial (completed fewer than 8)
+Exclude 18 trials where kid has precounted.
+
+```{r study2 - exclusions}
 ppt_excluded_completion <- df.trial_raw %>% 
-  filter(is.na(count)) %>%
+  filter(is.na(count) & is.na(set_chosen)) %>%
   group_by(id) %>%
   summarise(n_no_count = n()) %>%
   filter(n_no_count > 1) %>%
@@ -43,7 +56,7 @@ df.ppt <- df.ppt_raw %>%
   filter(!id %in% ppt_excluded_completion)
 
 df.trial_precounted <- df.trial_raw %>%
-  filter(!is.na(precounted)) # 10 trials were precounted, 5 from the same kid --> should I also just get rid of this kid?
+  filter(!is.na(precounted))
 
 df.trial <- df.trial_raw %>%
   filter(!id %in% ppt_excluded_completion) %>%
@@ -57,30 +70,57 @@ df.ppt %>%
   count(age_years) %>%
   knitr::kable()
 
-df.ppt %>%
+df.ppt_gender <- df.ppt %>%
   count(gender) %>%
   knitr::kable()
+
+df.ppt %>%
+  summarise(min_age = min(age_years_cont), 
+            max_age = max(age_years_cont), 
+            mean_age = mean(age_years_cont), 
+            sd_age = sd(age_years_cont))
 ```
 
-```{r}
-# df.trial <- df.trial %>%
-#   mutate(correct_count_no_na = ifelse(is.na(correct_count), 0, 1), 
-#          correct_count_approx_no_na = ifelse(is.na(correct_count_approx), 0, 1)) 
+```{r refactor}
+df.trial <- df.trial %>% 
+  mutate(trial_type = factor(trial_type, levels = c("small", "large-DR", "large-NDR"), 
+                             labels = c("small", "large-DR", "large-NR")))
 ```
 
 ## Results
 
-### Cardinal extension 
+### Cardinal extension operationalization
 
-Comparing: correct set combined with correct count, only correct set, only correct count.
+How do we operationalize cardinal extension success? 
+
+1. Kids succeed when they either chose the correct set (even if they got the wrong count due to an error), or when they didn't give a set but gave the correct count (this usually happens when they didn't need to explicitly count a set in the small trials). (recorded as correct_set_chosen)
+
+Some kids did not explicitly chose a set but still got the correct count even in large trials --> ?? They could have succeeded by mentally tracking each object (highly unlikely since super difficult) or guessed. They are currently coded as having selected the correct set. 
+
+```{r}
+df.trial %>%
+  filter(is.na(set_chosen) & correct_count == 1 & magnitude == "large") %>%
+  select(id, age_years_cont, stim_set, trial, trial_type, trial_ratio, set_chosen, count, target_set, target_count) %>%
+  count()
+```
+
+2. Kids succeed when they chose the correct set AND gave the correct count afterwards. (correct_count_when_correct_set_chosen)
+
+### Correct Set Chosen
+
+#### Descriptive Statistics
+```{r}
+df.summary_magnitude_correct_set_chosen <- df.trial %>%
+  group_by(trial_type) %>%
+  summarise(mean = mean(correct_set_chosen), sd = sd(correct_set_chosen))
+df.summary_magnitude_correct_set_chosen
+```
 
 #### By trial
 
-Doesn't seem to be any differences between trial types.
-
 ```{r}
 ggplot(data = df.trial, 
-       mapping = aes(x = trial_type, y = correct_set_chosen_or_correct_count, color = trial_type)) + 
+       mapping = aes(x = trial_type, y = correct_set_chosen, color = trial_type)) + 
   geom_jitter(height = 0, 
               alpha = 0.5) + 
   stat_summary(fun.data = "mean_cl_boot", 
@@ -88,8 +128,125 @@ ggplot(data = df.trial,
   theme(legend.position = "none") + 
   labs(y = "Cardinal extension success (by trial)", 
        x = "Trial Type", 
-       title = "Correct set chosen OR correct count") 
+       title = "Correct set chosen") 
 
+```
+
+#### By participant
+
+Each dot is a participant. Accurracy in set chosen against continuous age looks linear.
+
+```{r}
+plot3 <- ggplot(data = df.trial %>% 
+         mutate(trial_type = factor(trial_type, labels = c("small sets\n (e.g., 1:2)", "large sets,\n discriminable \n ratio (e.g., 5:10)", "large sets,\n off-by-one \n(e.g., 9:10)"))) %>%
+         group_by(id, age_years, trial_type) %>%
+         summarise(mean_correct_set = mean(correct_set_chosen, na.rm = FALSE)), 
+       mapping = aes(x = trial_type, y = mean_correct_set)) +
+  geom_violin(aes(fill = trial_type)) +
+  geom_jitter(height = 0, 
+              alpha = 0.5, 
+              aes(group = id)) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  geom_hline(yintercept = 0.5, linetype = 2) +
+  theme(legend.position = "none", 
+        text = element_text(size = 13)) + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) +
+  labs(y = "Prop. of correct set choice", 
+       x = "Set Size and Ratio"
+       ) 
+
+plot5 <- ggplot(data = df.trial %>% 
+         mutate(trial_type = factor(trial_type, labels = c("small sets\n (e.g., 1:2)", "large sets,\n discriminable \n ratio (e.g., 5:10)", "large sets,\n off-by-one \n(e.g., 9:10)"))) %>%
+         group_by(id, trial_type, age_years_cont) %>%
+         summarise(mean_correct_set = mean(correct_set_chosen, na.rm = FALSE)),
+       mapping = aes(x = age_years_cont, y = mean_correct_set, fill = trial_type, color = trial_type)) +
+  geom_smooth(method = "lm") + 
+  geom_jitter(height = 0, 
+              alpha = 0.5, 
+              aes(group = id),
+              color = "black") + 
+  geom_hline(yintercept = 0.5, linetype = 2) +
+  facet_grid(~trial_type) +
+  xlim(3, 6) +
+  #scale_x_continuous(breaks = seq(3, 6, by = 0.5)) + 
+  ylim(0, 1) + 
+  labs(y = "Prop. of correct set choice", 
+       x = "Age") + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) +
+  theme(legend.position = "none", 
+        text = element_text(size = 11)) 
+
+```
+
+#### T-tests
+
+Only large-NDR trials are not significantly better than chance.
+
+```{r}
+df.trial_type_summary <- df.trial %>% 
+  group_by(id, trial_type) %>%
+  summarise(mean_correct_set_chosen = mean(correct_set_chosen))
+
+t.test(df.trial %>% 
+         pull(correct_set_chosen), 
+       mu = 0.5, alternative = "two.sided")
+
+t.test(df.trial %>% 
+         filter(trial_type == "small") %>% 
+         pull(correct_set_chosen), 
+       mu = 0.5, alternative = "two.sided")
+
+t.test(df.trial %>% 
+         filter(trial_type == "large-DR") %>% 
+         pull(correct_set_chosen), 
+       mu = 0.5, alternative = "two.sided")
+
+t.test(df.trial %>% 
+         filter(trial_type == "large-NR") %>% 
+         pull(correct_set_chosen), 
+       mu = 0.5, alternative = "two.sided")
+```
+#### Regressions 
+
+No effect of age. Effect of trial type. 
+Pairwise post-hoc comparisons show a significant difference between all pairs of trial types, which survives a Bonferroni correction. 
+
+**So kids are using approximate number representation to evaluate difference between sets!**
+
+**Question**: Not sure if I need to do a Bonferroni correction here. I probably don't need to since it's just 3 post-hoc tests.
+
+```{r}
+#no effect of age
+fit.base <- glmer(correct_set_chosen ~ age_zscored + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
+summary(fit.base)
+Anova(fit.base, type = 3)
+
+#there is an effect of trial type
+fit.trial_type <- glmer(correct_set_chosen ~ age_zscored + trial_type + (1|id) + (1|trial_ratio), 
+                        data = df.trial, 
+                        family="binomial")
+summary(fit.trial_type)
+Anova(fit.trial_type, type = 3)
+
+anova(fit.trial_type, fit.base, type = 3)
+
+# significant difference between DR and NDR, and between NDR and small. only difference between NDR and small is significant after Bonferroni correction. 
+fit.trial_type %>% 
+  emmeans(specs = pairwise ~ trial_type,
+          adjust = "bonferroni") %>% 
+  pluck("contrasts")
+```
+
+
+### Correct count when correct set chosen 
+
+#### Descriptive Stats
+
+#### By trial
+```{r}
 ggplot(data = df.trial, 
        mapping = aes(x = trial_type, y = correct_count_when_correct_set_chosen, color = trial_type)) + 
   geom_jitter(height = 0, 
@@ -101,30 +258,8 @@ ggplot(data = df.trial,
        x = "Trial Type", 
        title = "Correct set chosen AND correct count") 
 
-ggplot(data = df.trial,
-       mapping = aes(x = trial_type, y = correct_set_chosen, color = trial_type)) + 
-  geom_jitter(height = 0, 
-              alpha = 0.5) + 
-  stat_summary(fun.data = "mean_cl_boot", 
-               geom = "pointrange") +
-  theme(legend.position = "none") + 
-  labs(y = "Cardinal extension success (by trial)", 
-       x = "Trial Type", 
-       title = "Correct set chosen") 
-
-ggplot(data = df.trial,
-       mapping = aes(x = trial_type, y = correct_count, color = trial_type)) + 
-  geom_jitter(height = 0, 
-              alpha = 0.5) + 
-  stat_summary(fun.data = "mean_cl_boot", 
-               geom = "pointrange") +
-  theme(legend.position = "none") + 
-  labs(y = "Cardinal extension success (by trial)", 
-       x = "Trial Type", 
-       title = "Correct count") 
-
 ggplot(data = df.trial %>% 
-         select(trial_type, correct_set_chosen, correct_count, correct_set_chosen_or_correct_count, correct_count_when_correct_set_chosen) %>%
+         select(trial_type, correct_set_chosen, correct_count_when_correct_set_chosen) %>%
           pivot_longer(-trial_type, names_to = "variable", values_to = "value"), 
        mapping = aes(x = trial_type, y = value, color = variable)) + 
   geom_jitter(height = 0, 
@@ -132,33 +267,18 @@ ggplot(data = df.trial %>%
   stat_summary(fun.data = "mean_cl_boot", 
                geom = "pointrange", 
                position = position_dodge(0.7)) +
-  labs(y = "Cardinal extension success (by trial)", 
+  labs(y = "Prop. correct count", 
        x = "Trial Type")
+
+
 ```
 
 #### By participant
-
-Each dot is a participant. Accurracy in set chosen against age (months) looks linear.
-
 ```{r}
-ggplot(data = df.trial %>%
+plot4 <- ggplot(data = df.trial %>% 
+         mutate(trial_type = factor(trial_type, labels = c("small sets\n (e.g., 1:2)", "large sets,\n discriminable \n ratio (e.g., 5:10)", "large sets,\n off-by-one \n(e.g., 9:10)"))) %>%
          group_by(id, trial_type) %>%
-         summarise(mean_correct_set_or_count = mean(correct_set_chosen_or_correct_count, na.rm = FALSE)), 
-       mapping = aes(x = trial_type, y = mean_correct_set_or_count)) +
-  geom_violin(aes(fill = trial_type)) +
-  geom_jitter(height = 0, 
-              alpha = 0.5, 
-              aes(group = id)) + 
-  stat_summary(fun.data = "mean_cl_boot", 
-               geom = "pointrange") +
-  theme(legend.position = "none") + 
-  labs(y = "Cardinal extension success (by participant)", 
-       x = "Trial Type", 
-       title = "Correct set chosen OR correct count") 
-
-ggplot(data = df.trial %>%
-         group_by(id, trial_type) %>%
-         summarise(mean_correct_count_with_set = mean(correct_set_chosen_with_correct_count, na.rm = FALSE)), 
+         summarise(mean_correct_count_with_set = mean(correct_count_when_correct_set_chosen, na.rm = FALSE)), 
        mapping = aes(x = trial_type, y = mean_correct_count_with_set)) +
   geom_violin(aes(fill = trial_type)) +
   geom_jitter(height = 0, 
@@ -166,50 +286,170 @@ ggplot(data = df.trial %>%
               aes(group = id)) + 
   stat_summary(fun.data = "mean_cl_boot", 
                geom = "pointrange") +
-  theme(legend.position = "none") + 
-  labs(y = "Cardinal extension success (by participant)", 
-       x = "Trial Type", 
-       title = "Correct set chosen AND correct count") 
+  theme(legend.position = "none", 
+        text = element_text(size = 13)) + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) +
+  labs(y = "Prop. of correct numerical response", 
+       x = "Set Size and Ratio") 
 
-ggplot(data = df.trial %>%
-         group_by(id, trial_type) %>%
-         summarise(mean_correct_set_chosen = mean(correct_set_chosen, na.rm = FALSE)), 
-       mapping = aes(x = trial_type, y = mean_correct_set_chosen)) +
-  geom_violin(aes(fill = trial_type)) +
+combined_plot <- plot_grid(plot3, plot4, labels = c('A', 'B'))
+
+plot6 <- ggplot(data = df.trial %>% 
+         mutate(trial_type = factor(trial_type, labels = c("small sets\n (e.g., 1:2)", "large sets,\n discriminable \n ratio (e.g., 5:10)", "large sets,\n off-by-one \n(e.g., 9:10)"))) %>%
+         group_by(id, age_years_cont, trial_type) %>%
+         summarise(mean_correct_count_with_set = mean(correct_count_when_correct_set_chosen, na.rm = TRUE)), 
+       mapping = aes(x = age_years_cont, y = mean_correct_count_with_set, fill = trial_type, color = trial_type)) + 
   geom_jitter(height = 0, 
               alpha = 0.5, 
-              aes(group = id)) + 
-  stat_summary(fun.data = "mean_cl_boot", 
-               geom = "pointrange") +
-  theme(legend.position = "none") + 
-  labs(y = "Cardinal extension success (by participant)", 
-       x = "Trial Type", 
-       title = "Correct set chosen") 
+              aes(group = id), 
+              color = "black")+
+  geom_smooth(method='lm') +
+  facet_grid(~trial_type) + 
+  xlim(3, 6) +
+  ylim(0, 1) +
+  #scale_x_continuous(breaks = seq(3, 6, by = 0.5)) + 
+  theme(legend.position = "none", 
+        text = element_text(size = 11)) + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) +
+    labs(y = "Prop. of correct numerical response", 
+       x = "Age") 
 
-ggplot(data = df.trial %>%
-         group_by(id, trial_type) %>%
-         summarise(mean_correct_count = mean(correct_count, na.rm = FALSE)), 
-       mapping = aes(x = trial_type, y = mean_correct_count)) +
-  geom_violin(aes(fill = trial_type)) +
-  geom_jitter(height = 0, 
-              alpha = 0.5, 
-              aes(group = id)) + 
-  stat_summary(fun.data = "mean_cl_boot", 
-               geom = "pointrange") +
-  theme(legend.position = "none") + 
-  labs(y = "Cardinal extension success (by participant)", 
-       x = "Trial Type", 
-       title = "Correct count") 
+combined_plot_count <- plot_grid(plot5, plot6)
+
+```
+
+#### T-tests
+
+Only large-NDR trials are not significantly better than chance.
+
+```{r}
+df.trial_type_summary_correct_count <- df.trial %>% 
+  group_by(id, trial_type) %>%
+  summarise(mean_correct_count_with_set = mean(correct_count_when_correct_set_chosen))
+
+t.test(df.trial_type_summary_correct_count %>% 
+         filter(trial_type == "small") %>% 
+         pull(mean_correct_count_with_set), 
+       mu = 0.5, alternative = "two.sided")
+
+t.test(df.trial_type_summary_correct_count %>% 
+         filter(trial_type == "large-DR") %>% 
+         pull(mean_correct_count_with_set), 
+       mu = 0.5, alternative = "two.sided")
+
+t.test(df.trial_type_summary_correct_count %>% 
+         filter(trial_type == "large-NR") %>% 
+         pull(mean_correct_count_with_set), 
+       mu = 0.5, alternative = "two.sided")
+```
+
+```{r}
+df.trial_type_summary_correct_count %>%
+  pivot_wider(
+              names_from = trial_type, 
+              values_from = mean_correct_count_with_set) %>%
+  rowwise() %>%
+  mutate(total_correct = mean(c(`small`, `large-DR`, `large-NR`))) %>%
+  filter(total_correct <= 0.5)
+```
+
+```{r}
+df.trial %>%
+  filter(correct_count_when_correct_set_chosen == 0) %>%
+  filter(correct_set_chosen == 1) %>%
+  group_by(trial_type) %>%
+  count()
+
+df.trial %>%
+  filter(correct_count_when_correct_set_chosen == 0) %>%
+  filter(!is.na(set_chosen) & correct_set_chosen == 0) %>%
+  group_by(trial_type) %>%
+  count()
+
+df.trial %>%
+  filter(correct_count_when_correct_set_chosen == 0) %>%
+  filter(is.na(set_chosen) & correct_set_chosen == 0) %>%
+  group_by(trial_type) %>%
+  count()
+
+df.trial %>%
+  filter(correct_count_when_correct_set_chosen == 0) %>%
+  group_by(trial_type) %>%
+  count()
+
+
+```
+
+#### Regressions
+Effect of age and of trial type.
+Pairwise post-hoc comparisons show a significant difference between all pairs of trial types, which survive a Bonferroni correction. This is probably driven by counting ability difference between large vs small sets. 
+
+```{r}
+#effect of age. Not surprising at all since higher age probably mean higher highest count.
+fit.base_correct_set_and_count <- glmer(correct_count_when_correct_set_chosen ~ age_zscored + (1|id) 
+                                        #+ (1|trial_ratio)
+                                        , 
+                                        data = df.trial, 
+                                        family="binomial")
+summary(fit.base_correct_set_and_count)
+Anova(fit.base_correct_set_and_count, type = 3)
+
+#effect of trial type AND age. 
+fit.trial_type_correct_set_and_count <- glmer(correct_count_when_correct_set_chosen ~ trial_type + age_zscored + (1|id) 
+                                              #+ (1|trial_ratio)
+                                              , 
+                                              data = df.trial, 
+                                              family="binomial")
+summary(fit.trial_type_correct_set_and_count)
+Anova(fit.trial_type_correct_set_and_count, type = 3)
+
+anova(fit.trial_type_correct_set_and_count, fit.base_correct_set_and_count, type = 3)
+
+# fit.trial_type_correct_set_and_count %>% 
+#   emmeans(specs = pairwise ~ trial_type,
+#           adjust = "none")
+fit.trial_type_correct_set_and_count %>% 
+  emmeans(specs = pairwise ~ trial_type,
+          adjust = "bonferroni")
+
+```
+
+```{r}
+#REFIT, REMOVE TRIAL_RATIO
+#effect of age. Not surprising at all since higher age probably mean higher highest count.
+fit.base_correct_set_and_count_refit <- glmer(correct_count_when_correct_set_chosen ~ age_zscored + (1|id), 
+                                        data = df.trial, 
+                                        family="binomial")
+summary(fit.base_correct_set_and_count_refit)
+Anova(fit.base_correct_set_and_count_refit, type = 3)
+
+#effect of trial type AND age. 
+fit.trial_type_correct_set_and_count_refit <- glmer(correct_count_when_correct_set_chosen ~ trial_type + age_zscored + (1|id), 
+                                              data = df.trial, 
+                                              family="binomial")
+summary(fit.trial_type_correct_set_and_count_refit)
+Anova(fit.trial_type_correct_set_and_count_refit, type = 3)
+
+anova(fit.trial_type_correct_set_and_count_refit, fit.base_correct_set_and_count_refit, type = 3)
+
+# fit.trial_type_correct_set_and_count %>% 
+#   emmeans(specs = pairwise ~ trial_type,
+#           adjust = "none")
+fit.trial_type_correct_set_and_count_refit %>% 
+  emmeans(specs = pairwise ~ trial_type,
+          adjust = "bonferroni")
 
 ```
 
 ### Approximate correct count
 
-Rose only did this for large set, to take into account kids who might have made a mistake during counting. Still no difference between distinguishable and non-distinguishable ratios. But in any case, they should still have gotten the correct set, since it's unlikely that they get the correct count for large trials without choosing a set. So maybe this is unnecessary.
+Only did this for large set, to take into account kids who might have made a mistake during counting. Does not look significantly different from when exact count is required. Regression using this as a predictor does not show a qualitative difference. 
 
 ```{r}
 ggplot(data = df.trial %>% filter(trial_type != "small"), 
-       mapping = aes(x = trial_type, y = correct_count_approx)) + 
+       mapping = aes(x = trial_type, y = correct_count_approx_when_correct_set_chosen)) + 
   geom_jitter(aes(color = id), 
               height = 0, 
               alpha = 0.5) +  
@@ -225,11 +465,22 @@ ggplot(data = df.trial %>% filter(trial_type != "small"),
   stat_summary(fun.data = "mean_cl_boot", 
                geom = "pointrange") +
   theme(legend.position = "none")
+
+ggplot(data = df.trial %>% 
+         select(trial_type, correct_set_chosen, correct_count_when_correct_set_chosen, correct_count_approx_when_correct_set_chosen) %>%
+          pivot_longer(-trial_type, names_to = "variable", values_to = "value"), 
+       mapping = aes(x = trial_type, y = value, color = variable)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange", 
+               position = position_dodge(0.7)) +
+  labs(y = "Cardinal extension success (by trial)", 
+       x = "Trial Type")
 ```
 
 ### Error size
-
-Exclude kids who did not finish more than 90% of trials. For only trials where counts are given.
+For only trials where counts are given.
 
 ```{r}
 ggplot(data = df.trial, 
@@ -251,61 +502,262 @@ ggplot(data = df.trial,
   theme(legend.position = "none")
 ```
 
-### Regressions 
+### Highest count
 
-No effect of age. Significant improvement when trial type is added as predictor.
-
-Effect of trial type: significant difference between large - nondistinguishable ratio trials and small trials, but no differences between large distinguishable vs nondistinguishable ratios, or large distinguishable vs small. 
-
-When correct set is used as the DV: significant diff between large nondistinguishable ratio vs small, and large distinguishable vs nondistinguishable ratios. But not between large distinguishable vs small. 
+#### With correct_set_chosen
+Highest count does not explain additional variance.
 
 ```{r}
-#no effect of age
-fit.base <- glmer(correct_set_chosen_or_correct_count ~ age_years + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
-summary(fit.base)
-Anova(fit.base, type = 3)
-
-fit.trial_type <- glmer(correct_set_chosen_or_correct_count ~ trial_type + age_years + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
-summary(fit.trial_type)
-Anova(fit.trial_type, type = 3)
-
-anova(fit.trial_type, fit.base, type = 3)
-
-fit.trial_type %>% 
-  emmeans(specs = pairwise ~ trial_type,
-          adjust = "none")
-
-fit.base_correct_set <- glmer(correct_set_chosen ~ age_years + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
-summary(fit.base_correct_set)
-Anova(fit.base_correct_set, type = 3)
-
-fit.trial_type_correct_set <- glmer(correct_set_chosen ~ trial_type + age_years + (1|id) + (1|trial_ratio), data = df.trial, family="binomial")
-summary(fit.trial_type_correct_set)
-Anova(fit.trial_type_correct_set, type = 3)
-
-fit.trial_type_correct_set %>% 
-  emmeans(specs = pairwise ~ trial_type,
-          adjust = "none")
-
-```
-
-#### Highest count
-
-No effect of highest count
-```{r}
-fit.base_hc <- glmer(correct_set_chosen_or_correct_count ~ highest_count + age_years + (1|id) + (1|trial_ratio), 
+fit.hc <- glmer(correct_set_chosen ~ highest_count + age_zscored + trial_type + (1|id) + (1|trial_ratio), 
                      data = df.trial %>%
                                   filter(!is.na(highest_count)),
                                 family="binomial")
-summary(fit.base_hc)
-Anova(fit.base_hc, type = 3)
+summary(fit.hc)
+Anova(fit.hc, type = 3)
 
-#---------
-fit.trial_type_hc <- glmer(correct_set_chosen_or_correct_count ~ highest_count + trial_type + age_years + (1|id) + (1|trial_ratio), 
-                   data = df.trial %>%
+fit.hc_comp <- glmer(correct_set_chosen ~ age_zscored + trial_type + (1|id) + (1|trial_ratio), 
+                     data = df.trial %>%
                                   filter(!is.na(highest_count)),
                                 family="binomial")
-summary(fit.trial_type_hc)
-Anova(fit.trial_type_hc, type = 3)
+summary(fit.hc_comp)
+Anova(fit.hc_comp, type = 3)
+anova(fit.hc, fit.hc_comp)
+```
 
+#### With correct_count
+
+```{r}
+fit.hc <- glmer(correct_count_when_correct_set_chosen ~ highest_count + age_zscored + trial_type + (1|id) + (1|trial_ratio), 
+                     data = df.trial %>%
+                                  filter(!is.na(highest_count)),
+                                family="binomial")
+summary(fit.hc)
+Anova(fit.hc, type = 3)
+
+fit.hc_comp <- glmer(correct_count_when_correct_set_chosen ~ age_zscored + trial_type + (1|id) + (1|trial_ratio), 
+                     data = df.trial %>%
+                                  filter(!is.na(highest_count)),
+                                family="binomial")
+summary(fit.hc_comp)
+Anova(fit.hc_comp, type = 3)
+anova(fit.hc, fit.hc_comp)
+
+#REFIT
+
+fit.hc <- glmer(correct_count_when_correct_set_chosen ~ highest_count + age_zscored + trial_type + (1|id), 
+                     data = df.trial %>%
+                                  filter(!is.na(highest_count)),
+                                family="binomial")
+summary(fit.hc)
+Anova(fit.hc, type = 3)
+
+fit.hc_comp <- glmer(correct_count_when_correct_set_chosen ~ age_zscored + trial_type + (1|id), 
+                     data = df.trial %>%
+                                  filter(!is.na(highest_count)),
+                                family="binomial")
+summary(fit.hc_comp)
+Anova(fit.hc_comp, type = 3)
+anova(fit.hc, fit.hc_comp)
+```
+### Error analysis
+What kind of errors are kids making? 
+
+```{r study2 - set - error chisq }
+df.error_obs <- df.trial %>%
+  filter(trial_type != "small") %>%
+  mutate(response_type = 
+           case_when( 
+               correct_set_chosen == 1 ~ "correct",
+               set_chosen == "top" | set_chosen == "bottom" ~ "counted_wrong", 
+               set_chosen == "both" ~ "counted_both", 
+               is.na(set_chosen) ~ "counted_none",
+             )) %>%
+  group_by(trial_type, response_type) %>%
+  count()
+
+df.error_table <- df.error_obs %>%
+  pivot_wider(names_from = trial_type, 
+              values_from = n) %>%
+  ungroup() %>%
+  mutate(`large-DR` = paste(`large-DR`, " (", force_decimals(`large-DR` / sum(`large-DR`) * 100), "%)", sep = ""), 
+         `large-NR` = paste(`large-NR`, " (", force_decimals(`large-NR` / sum(`large-NR`) * 100), "%)", sep = "")) %>%
+  mutate(response_type = factor(response_type,
+                                levels = c("correct", "counted_wrong",
+                                           "counted_both", "counted_none"), 
+                                labels = c("Correct", 
+                                           "Incorrect, chose distractor set", 
+                                           "Incorrect, chose both sets", 
+                                           "Incorrect, did not choose a set")))
+
+df.error_chisq <- df.error_obs %>%
+  pivot_wider(names_from = response_type, 
+              values_from = n) %>%
+  ungroup() %>%
+  select(!c(trial_type, correct))
+
+chisq.test(df.error_chisq)
+
+chisq.posthoc.test(df.error_chisq, round = 3)
+```
+
+### Individual analysis
+Are kids consistently failing at a certain type of trial? 
+Code 'success at small' as 100% success in all 3 small trials, etc. 
+
+Venn diagram shows expected results. 
+15 kids did not show 100% success at any trial type (they could have succeeded in 1 trial, but not all 3).
+13 kids only succeeded at small trials. 3 kid only succeeded at large - DR trials. No kid only succeeded at large - NDR trials. 
+
+3 kids succeeded at only small + large NDR trials. 19 kids succeeded at only small + large DR trials. 1 kid succeeded at only large NDR + DR trials, but this could be because of a parallax issue -- on the video (and in person) he looks like he was counting the bottom trial, but gave the quantity of the top trial. 
+ 
+
+
+```{r}
+df.indiv_analysis <- df.trial %>% 
+  group_by(id, trial_type, age_years) %>%
+  summarise(mean_correct_set_chosen = mean(correct_set_chosen)) %>% 
+  pivot_wider(names_from = trial_type, values_from = mean_correct_set_chosen) %>%
+  mutate(succeed_small = ifelse(small == 1, 1, 0), 
+         succeed_large_NR = ifelse(`large-NR` == 1, 1, 0), 
+         succeed_large_DR = ifelse(`large-DR` == 1, 1, 0))
+
+df.indiv_analysis_summary <- df.indiv_analysis %>%
+  ungroup() %>%
+  summarise(
+    n_succeed_in_small = sum(succeed_small == 1), 
+    n_succeed_in_largeDR = sum(succeed_large_DR == 1), 
+    n_succeed_in_largeNR = sum(succeed_large_NR == 1), 
+    n_succeed_in_small_largeNR = sum(succeed_small == 1 & succeed_large_NR == 1), 
+    n_succeed_in_small_largeDR = sum(succeed_small == 1 & succeed_large_DR == 1), 
+    n_succeed_in_largeNR_largeDR = sum(succeed_large_NR == 1 & succeed_large_DR == 1), 
+    n_succeed_in_all = sum(succeed_small == 1 & succeed_large_NR == 1 & succeed_large_DR == 1), 
+  )
+
+grid.newpage()
+venn_object <- draw.triple.venn(area1 = df.indiv_analysis_summary %>% pull(n_succeed_in_small), 
+                 area2 = df.indiv_analysis_summary %>% pull(n_succeed_in_largeDR), 
+                 area3 = df.indiv_analysis_summary %>% pull(n_succeed_in_largeNR), 
+                 n12 = df.indiv_analysis_summary %>% pull(n_succeed_in_small_largeDR), 
+                 n23 = df.indiv_analysis_summary %>% pull(n_succeed_in_largeNR_largeDR), 
+                 n13 = df.indiv_analysis_summary %>% pull(n_succeed_in_small_largeNR), 
+                 n123 = df.indiv_analysis_summary %>% pull(n_succeed_in_all), 
+                 category = c("Small", "Large - DR", "Large - NR"), 
+                 fill = c("pink", "green", "orange"))
+grid.draw(venn_object)
+```
+
+```{r}
+ppt_all_correct <- df.indiv_analysis %>%
+  filter(succeed_small == 1 & succeed_large_DR == 1 & succeed_large_NR & 1) %>%
+  pull(id)
+
+df.all_correct <- df.trial %>%
+  filter(id %in% ppt_all_correct)
+
+df.all_correct %>% summarise(mean_hc = mean(highest_count, na.rm = T), 
+                            mean_age = mean(age_years_cont, na.rm = T))
+
+df.not_all_correct <- df.trial %>%
+  filter(!id %in% ppt_all_correct)
+df.not_all_correct %>% summarise(mean_hc = mean(highest_count, na.rm = T), 
+                            mean_age = mean(age_years_cont, na.rm = T))
+
+df.trial %>%
+  filter(!id %in% ppt_all_correct) %>%
+  group_by(set_chosen, as.factor(count)) %>%
+  count()
+
+```
+
+What if we plot NDR performance against DR performance? 
+
+```{r}
+ggplot(data = df.indiv_analysis, 
+       mapping = aes(x = `large-DR`, y = `large-NR`, color = as.factor(age_years))) + 
+  geom_jitter(alpha = 0.6) + 
+  geom_abline(slope=1, intercept= 0) +
+  geom_vline(xintercept = 0.5) + 
+  geom_hline(yintercept = 0.5) + 
+  labs(color = "Age")
+  #theme(legend.position = "none") 
+```
+
+### Sanity Check
+
+#### Stim Set Analysis
+
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(x = stim_set, y = correct_set_chosen)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  geom_hline(yintercept = 0.5, linetype = 2) + 
+  theme(legend.position = "none") + 
+  labs(y = "Cardinal extension success (by trial)", 
+       x = "Stim Set", 
+       title = "Correct set chosen") 
+
+summary(glmer(correct_set_chosen ~ stim_set + (1|id) + (1|trial_ratio), 
+                     data = df.trial, family="binomial"))
+```
+
+#### Trial order
+No effect of trial order.
+```{r}
+ggplot(data = df.trial, 
+       mapping = aes(x = trial, y = correct_set_chosen)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") + 
+  facet_grid(~stim_set) + 
+  labs(y = "Cardinal extension success (by trial)", 
+       x = "Trial #", 
+       title = "Correct set chosen") 
+
+summary(glmer(correct_set_chosen ~ trial + (1|id) + (1|trial_ratio), 
+                     data = df.trial, family="binomial"))
+```
+
+Do kids get better at Large-NR trials with more exposure to them? Not really.
+
+```{r}
+df.nr <- df.trial %>%
+  filter(trial_type == "large-NR") %>%
+  mutate(trial_nr_order = case_when(
+    stim_set == 1 & trial == 3 ~ 1,
+    stim_set == 1 & trial == 5 ~ 2, 
+    stim_set == 1 & trial == 8 ~ 3, 
+    stim_set == 2 & trial == 1 ~ 1, 
+    stim_set == 2 & trial == 5 ~ 2, 
+    stim_set == 2 & trial == 7 ~ 3,
+    stim_set == 3 & trial == 4 ~ 1, 
+    stim_set == 3 & trial == 5 ~ 2, 
+    stim_set == 3 & trial == 9 ~ 3, 
+    stim_set == 4 & trial == 4 ~ 1, 
+    stim_set == 4 & trial == 7 ~ 2, 
+    stim_set == 4 & trial == 9 ~ 3
+  ))
+
+df.nr %>% group_by(stim_set, trial_nr_order) %>%
+  count()
+
+t.test(df.nr %>%
+         filter(trial_nr_order == 3) %>%
+         pull(correct_set_chosen), mu = 0.5)
+ggplot(data = df.nr, 
+       mapping = aes(x = trial_nr_order, y = correct_set_chosen)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.5) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  theme(legend.position = "none") + 
+  facet_grid(~stim_set) +
+  geom_hline(yintercept = 0.5, linetype = 2) +
+  labs(y = "Cardinal extension success (by trial)", 
+       x = "NR Trial #", 
+       title = "Correct set chosen") 
 ```
