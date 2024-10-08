@@ -1,7 +1,9 @@
 background/*
 slides/*
-stimuli/*
 *rsconnect*
 *.DS_Store
 *.Rproj.user*
 *OLD*
+.Rproj.user
+.Rhistory
+submissions/*

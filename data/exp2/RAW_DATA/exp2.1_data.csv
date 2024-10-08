@@ -1,0 +1,72 @@
+pid,dot,dob,gender,primary_lang,is_bilingual,location,experimenter,has_video,trial,trial_ratio,set_chosen,correct_set_chosen,count,correct_count,remember_missing_item,notes,already_tested
+GD-DM-09,4/3/2024,03/05/2019,M,English,N,Grow & Discover,Urvi,N,1,10-11,wrong,N,10,N,Y,,
+GD-DM-09,4/3/2024,03/05/2019,M,English,N,Grow & Discover,Urvi,N,2,9-10,correct,Y,10,Y,Y,,
+GD-DM-09,4/3/2024,03/05/2019,M,English,N,Grow & Discover,Urvi,N,3,11-12,wrong,N,11,N,Y,,
+PD-OS-19,4/2/2024,1/30/2019,M,English,N,Puddleduck,Khuyen,N,1,10-11,correct,Y,11,Y,Y,,did Exp1 (CP)
+PD-OS-19,4/2/2024,1/30/2019,M,English,N,Puddleduck,Khuyen,N,2,9-10,correct,Y,10,Y,Y,,did Exp1 (CP)
+PD-OS-19,4/2/2024,1/30/2019,M,English,N,Puddleduck,Khuyen,N,3,11-12,correct,Y,12,Y,Y,,did Exp1 (CP)
+CL-K-25,4/3/2024,4/2/2019,F,English,N,Christian Life,Khuyen,N,1,10-11,correct,Y,11,Y,Y,"counted 10, then corrected after prompt",
+CL-K-25,4/3/2024,4/2/2019,F,English,N,Christian Life,Khuyen,N,2,9-10,correct,Y,10,Y,Y,,
+CL-K-25,4/3/2024,4/2/2019,F,English,N,Christian Life,Khuyen,N,3,11-12,correct,Y,12,Y,Y,,
+ACU-CH-16,4/4/2024,5/13/2020,M,English,N,Adventure Day Cumberland,Khuyen,N,1,10-11,none,N,10,N,Y,"guessed number, then counted after prompt",
+ACU-CH-16,4/4/2024,5/13/2020,M,English,N,Adventure Day Cumberland,Khuyen,N,2,9-10,wrong,N,10,N,Y,"guessed number, then counted after prompt",
+ACU-CH-16,4/4/2024,5/13/2020,M,English,N,Adventure Day Cumberland,Khuyen,N,3,11-12,wrong,N,9,N,Y,"guessed number, then counted after prompt",
+ACU-JV-12,4/4/2024,7/30/2019,F,English,N,Adventure Day Cumberland,Khuyen,N,1,10-11,correct,Y,12,N,Y,"counted 8, then corrected after prompt",
+ACU-JV-12,4/4/2024,7/30/2019,F,English,N,Adventure Day Cumberland,Khuyen,N,2,9-10,wrong,N,11,N,Y,,
+ACU-JV-12,4/4/2024,7/30/2019,F,English,N,Adventure Day Cumberland,Khuyen,N,3,11-12,both,N,14,N,Y,"counted 13, then corrected after prompt. alternated between sets. ",
+ACU-AC-12,4/4/2024,3/21/2019,F,English,N,Adventure Day Cumberland,Khuyen,N,1,10-11,wrong,N,10,N,Y,"counted 9, then correct after prompt.",
+ACU-AC-12,4/4/2024,3/21/2019,F,English,N,Adventure Day Cumberland,Khuyen,N,2,9-10,correct,Y,10,Y,Y,,
+ACU-AC-12,4/4/2024,3/21/2019,F,English,N,Adventure Day Cumberland,Khuyen,N,3,11-12,correct,Y,13,N,Y,"did not prompt to fix count
+""Why? Because it's missing."" ",
+ACU-M-21,4/4/2024,1/17/2019,M,English,N,Adventure Day Cumberland,Khuyen,Y,1,10-11,correct,Y,11,Y,Y,,
+ACU-M-21,4/4/2024,1/17/2019,M,English,N,Adventure Day Cumberland,Khuyen,Y,2,9-10,wrong,N,11,N,Y,did not prompt to fix count,
+ACU-M-21,4/4/2024,1/17/2019,M,English,N,Adventure Day Cumberland,Khuyen,Y,3,11-12,correct,Y,12,Y,Y,"""Why? Because there's all of them."" ",
+ACU-RK-40,4/5/2024,8/1/2019,M,English,N,Adventure Day Cumberland,Khuyen,N,1,10-11,correct,Y,11,Y,Y,"""I can't see"" first, then counted correctly",
+ACU-RK-40,4/5/2024,8/1/2019,M,English,N,Adventure Day Cumberland,Khuyen,N,2,9-10,wrong,Y,13,N,Y,did not prompt to fix count,
+ACU-RK-40,4/5/2024,8/1/2019,M,English,N,Adventure Day Cumberland,Khuyen,N,3,11-12,correct,Y,18,N,Y,did not prompt to fix count,
+ACU-KE-13,4/5/2024,6/24/2020,F,English,N,Adventure Day Cumberland,Khuyen,Y,1,10-11,both,N,10,N,Y,,
+ACU-KE-13,4/5/2024,6/24/2020,F,English,N,Adventure Day Cumberland,Khuyen,Y,2,9-10,both,N,14,N,Y,,
+ACU-KE-13,4/5/2024,6/24/2020,F,English,N,Adventure Day Cumberland,Khuyen,Y,3,11-12,both,N,10,N,Y,,
+ACU-AC-35,4/5/2024,4/22/2019,F,English,N,Adventure Day Cumberland,Khuyen,N,1,10-11,none,N,3,N,Y,guessed number,
+ACU-AC-35,4/5/2024,4/22/2019,F,English,N,Adventure Day Cumberland,Khuyen,N,2,9-10,both,N,20,N,Y,counted each set seperately,
+ACU-AC-35,4/5/2024,4/22/2019,F,English,N,Adventure Day Cumberland,Khuyen,N,3,11-12,none,N,3,N,Y,"""Are there more baskets, or more books? More baskets, because one is missing a basket""",
+ACU-M-37,4/5/2024,4/22/2020,F,English,N,Adventure Day Cumberland,Khuyen,N,1,10-11,correct,Y,11,Y,Y,,
+ACU-M-37,4/5/2024,4/22/2020,F,English,N,Adventure Day Cumberland,Khuyen,N,2,9-10,wrong,N,10,N,Y,"counted wrong set, but seemed to count the 'location'",
+ACU-M-37,4/5/2024,4/22/2020,F,English,N,Adventure Day Cumberland,Khuyen,N,3,11-12,wrong,N,12,N,Y,"counted wrong set, but seemed to count the 'location'
+""Why? Because there was a bunny that was missing a basket, so I need to count all the baskets. The bunnies need to do what they have to do.""",
+TE-KJ-05,4/5/2024,02/13/2019,F,English,N,Tigger Too ELC,Urvi,N,1,10-11,wrong,N,10,N,Y,,
+TE-KJ-05,4/5/2024,02/13/2019,F,English,N,Tigger Too ELC,Urvi,N,2,9-10,correct,Y,10,Y,Y,,
+TE-KJ-05,4/5/2024,02/13/2019,F,English,N,Tigger Too ELC,Urvi,N,3,11-12,wrong,N,11,N,Y,,
+CL-RD-10,4/8/2024,4/3/2019,M,English,N,Christian Life,Khuyen,N,1,10-11,both,N,12,N,Y,,
+CL-RD-10,4/8/2024,4/3/2019,M,English,N,Christian Life,Khuyen,N,2,9-10,both,N,9,N,Y,,
+CL-RD-10,4/8/2024,4/3/2019,M,English,N,Christian Life,Khuyen,N,3,11-12,both,N,12,N,Y,,
+BF-MD-14,4/10/2024,1/6/2020,F,English,N,Beaufort,Khuyen,N,1,10-11,correct,Y,9,N,Y,"first guessed 3, then counted the wrong set after prompting",Did Exp1 (subset)
+BF-MD-14,4/10/2024,1/6/2020,F,English,N,Beaufort,Khuyen,N,2,9-10,correct,Y,10,Y,Y,,Did Exp1 (subset)
+BF-MD-14,4/10/2024,1/6/2020,F,English,N,Beaufort,Khuyen,N,3,11-12,correct,Y,12,Y,Y,"""Why? Cause they just had forks, and 1 didn't have a basket""",Did Exp1 (subset)
+CL-GOF-31,4/10/2024,5/29/2018,F,English,French,Christian Life,Khuyen,N,1,10-11,correct,Y,11,Y,Y,,
+CL-GOF-31,4/10/2024,5/29/2018,F,English,French,Christian Life,Khuyen,N,2,9-10,correct,Y,10,Y,Y,,
+CL-GOF-31,4/10/2024,5/29/2018,F,English,French,Christian Life,Khuyen,N,3,11-12,correct,Y,14,N,Y,"""Why did you count the forks to find the number of bunnies? Because there were enough forks. Why don't you count the baskets? Because there were one basket missing. ",
+CE-KB-02,4/11/2024,7/14/2018,M,English,N,Courtenay Elementary,Khuyen,N,1,10-11,correct,Y,11,Y,Y,,
+CE-KB-02,4/11/2024,7/14/2018,M,English,N,Courtenay Elementary,Khuyen,N,2,9-10,correct,Y,10,Y,Y,,
+CE-KB-02,4/11/2024,7/14/2018,M,English,N,Courtenay Elementary,Khuyen,N,3,11-12,correct,Y,12,Y,Y,,
+TP-CD-06,4/11/2024,10/4/2019,M,English,N,Tigger Too,Khuyen,N,1,10-11,none,N,5,N,Y,,
+TP-CD-06,4/11/2024,10/4/2019,M,English,N,Tigger Too,Khuyen,N,2,9-10,both,N,17,N,Y,,
+TP-CD-06,4/11/2024,10/4/2019,M,English,N,Tigger Too,Khuyen,N,3,11-12,both,N,20,N,Y,,
+BF-C-27,4/12/2024,1/14/2019,M,English,N,Beaufort,Khuyen,N,1,10-11,none,N,10,N,Y,,Did Exp1 (CP)
+BF-C-27,4/12/2024,1/14/2019,M,English,N,Beaufort,Khuyen,N,2,9-10,both,N,19,N,Y,,Did Exp1 (CP)
+BF-C-27,4/12/2024,1/14/2019,M,English,N,Beaufort,Khuyen,N,3,11-12,both,N,23,N,Y,,Did Exp1 (CP)
+BF-A-09,4/12/2024,9/28/2019,M,English,N,Beaufort,Khuyen,N,1,10-11,none,N,6,N,Y,,
+BF-A-09,4/12/2024,9/28/2019,M,English,N,Beaufort,Khuyen,N,2,9-10,none,N,7,N,Y,,
+BF-A-09,4/12/2024,9/28/2019,M,English,N,Beaufort,Khuyen,N,3,11-12,none,N,8,N,Y,,
+BF-KK-31,4/12/2024,8/11/2019,F,English,N,Beaufort,Khuyen,N,1,10-11,wrong,N,10,N,Y,,
+BF-KK-31,4/12/2024,8/11/2019,F,English,N,Beaufort,Khuyen,N,2,9-10,correct,Y,10,Y,Y,,
+BF-KK-31,4/12/2024,8/11/2019,F,English,N,Beaufort,Khuyen,N,3,11-12,correct,Y,12,Y,Y,,
+BF-MK-02,4/12/2024,2/12/2019,F,English,N,Beaufort,Khuyen,N,1,10-11,correct,Y,11,Y,Y,slightly different trials because she has seen the previous slides,
+BF-MK-02,4/12/2024,2/12/2019,F,English,N,Beaufort,Khuyen,N,2,11-12,correct,Y,12,Y,Y,,
+BF-MK-02,4/12/2024,2/12/2019,F,English,N,Beaufort,Khuyen,N,3,9-10,correct,Y,10,Y,Y,,
+BF-OB-10,4/12/2024,9/23/2019,F,English,Y (check consent form),Beaufort,Khuyen,N,1,10-11,none,N,5,N,Y,,Did Exp1 (subset)
+BF-OB-10,4/12/2024,9/23/2019,F,English,Y (check consent form),Beaufort,Khuyen,N,2,9-10,wrong,N,8,N,Y,"guessed 4, then counted after prompt",Did Exp1 (subset)
+BF-OB-10,4/12/2024,9/23/2019,F,English,Y (check consent form),Beaufort,Khuyen,N,3,11-12,correct,Y,12,Y,Y,"guessed 10, then counted after prompt",Did Exp1 (subset)
+BF-MW-22,4/12/2024,6/19/2019,F,English,N,Beaufort,Khuyen,N,1,10-11,correct,Y,16,N,Y,,Did Exp1 (subset)
+BF-MW-22,4/12/2024,6/19/2019,F,English,N,Beaufort,Khuyen,N,2,9-10,wrong,N,10,N,Y,"counted the ""missing"" location",Did Exp1 (subset)
+BF-MW-22,4/12/2024,6/19/2019,F,English,N,Beaufort,Khuyen,N,3,11-12,correct,Y,11,N,Y,,Did Exp1 (subset)

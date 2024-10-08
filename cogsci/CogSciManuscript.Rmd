@@ -1,0 +1,715 @@
+---
+title: "'Five' is the number of bunnies and hats: Children’s understanding of cardinal extension and exact number"
+bibliography: library.bib
+csl               : "`r system.file('rmd', 'apa7.csl', package = 'papaja')`"
+documentclass     : "apa7"
+header-includes:
+  - \setlength{\belowcaptionskip}{-10pt}
+document-params: "10pt, letterpaper"
+author-information: > 
+    \author{{\large \bf Khuyen N. Le}, {\large \bf Christine Kwon}, {\large \bf Mincong Wu}, and {\large \bf David Barner} \\ \{knl005, ckwon, miw036, dbarner\}@ucsd.edu \\ Department of Psychology, University of California, San Diego \\ La Jolla, CA 92093, USA}
+   
+abstract: >
+    When do children understand that number words (such as ‘five’) refer to exact quantities and that the same number word can be used to label two sets whose items correspond 1-to-1 (e.g., if each bunny has a hat, and there are five hats, then there are five bunnies)? Two studies with English-speaking 2- to 5-year-olds revealed that children who could accurately count large sets (CP knowers) were able to infer that sets exhibiting 1-to-1 correspondence share the same number word, but not children who could not accurately count large sets (subset knowers). However, not all CP knowers made this inference, suggesting that learning to construct and label large sets is a critical but insufficient step in discovering that numbers represent exact quantities. CP knowers also failed to identify 1-to-1 corresponding sets when faced with sets that had an off-by-one difference, suggesting that children who could accurately count large sets used approximate magnitude to establish set equality, rather than 1-to-1 correspondence. These results suggest that children’s initial intuitions about numerical and set equality are based on approximation, not 1-to-1 correspondence, and that this occurs well after they have learned to count and construct large sets.
+keywords: >
+    number words; number concepts; exact equality; 1-to-1 correspondence; cardinal extension; language development 
+    
+output: cogsci2016::cogsci_paper
+final-submission: \cogscifinalcopy
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=3, fig.height=3, fig.crop = F, 
+                      fig.pos = "tb", fig.path='figs/',
+                      echo=F, warning=F, 
+                      cache=F, 
+                      message=F, sanitize = T)
+```
+
+```{r, libraries}
+library(png)
+library(grid)
+library(ggplot2)
+library(xtable)
+
+library(scales) #use this for p-value pvalue(add_p = true)
+
+library('tidyverse')
+library('papaja')
+library("purrr")
+library("uuid")
+library('lubridate')
+library('ggplot2')
+library('lme4')
+library('lmerTest')
+library('emmeans')
+library('car')
+library('report')
+library('ggthemes')
+
+library('cowplot')
+library('prmisc')
+
+theme_set(theme_classic())
+
+cbPalette <- c("#E69F00", "#009E73", "#56B4E9","#D55E00", "#0072B2", "#F0E442",  "#CC79A7", "#000000")
+```
+
+```{r analysis-preferences}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+
+print_coeff <- function(model, factor, factor_label = "") {
+  coef = force_decimals(coef(summary(model))[factor, "Estimate"])
+  ci1 = force_decimals(confint.merMod(model,method="Wald")[factor, '2.5 %'])
+  ci2 = force_decimals(confint.merMod(model,method="Wald")[factor, '97.5 %'])
+  p = format_p(coef(summary(model))[factor, "Pr(>|z|)"])
+  return(paste("$\\beta$", factor_label, " = ", coef, ", ", 
+      "95% CI = [", ci1, ", ", ci2, "], ", 
+      p, sep = ""))
+}
+
+print_coeff_p <- function(model, factor, factor_label = "") {
+  return(format_p(coef(summary(model))[factor, "Pr(>|z|)"]))
+}
+
+print_model_comp <- function(model_comp, factor) {
+  df = model_comp[factor, "Df"]
+  chi = force_decimals(model_comp[factor, "Chisq"])
+  p = format_p(model_comp[factor, "Pr(>Chisq)"])
+  return(paste("$\\chi^2$(", 
+               df, ") = ", 
+               chi, ", ", 
+               p, sep = ""))
+}
+
+print_model_comp_p <- function(model_comp, factor) {
+  return(format_p(model_comp[factor, "Pr(>Chisq)"]))
+}
+              
+```
+
+# Introduction
+
+Imagine you attend a popular conference talk where every chair is occupied. After the talk, you want to know how many people attended. Is there a way to know? As numerate adults, we know that we can count the number of chairs to  infer the number of attendees. Understanding this principle, sometimes called "cardinal extension", involves two distinct abilities. First, it requires the non-linguistic ability to recognize that two sets have the same number of items if and only if their members can be placed in one-to-one correspondence, sometimes called "Hume’s Principle" [@boolos1986; @decock2008; @frege1880; @frege1884]. Second, it requires understanding that a particular number word can be applied to two different sets if and only if they have an equal number of items. Therefore, cardinal extension integrates both non-linguistic reasoning about exact equality and linguistic knowledge of how number words encode number
+
+<!-- As numerate adults, we know that we can count the number of chairs and infer the number of attendees. This is because we know that two sets have the same number of items if and only if their members can be placed in 1-to-1 correspondence, and also that equal sets receive the same numerical label. Reasoning about exact equality between sets is a key milestone of numerical development and in understanding exact number word meaning. -->
+
+<!-- How do children acquire this knowledge? Children as young as 2 years old deploy a counting procedure by pointing to each item in a set as they recite numbers in a stable order – e.g., ‘one’, ‘two’, ‘three’ [@gelman1986], but don’t yet know how counting represents exact number. Using the Give-N task [@wynn1990; @wynn1992], researchers have found that children begin by learning the meanings of ‘one’, then ‘two’ and ‘three’ (e.g., giving one object when asked for ‘one’), during which period they are called “subset knowers” (because they know only a subset of number word meanings). Eventually, children learn to accurately give larger numbers by counting and giving all items that are implicated in their count – at which point they are often called “Cardinal Principle knowers” (“CP knowers”) on the premise that they understand that the last number in a count represents the cardinality of the counted set.  -->
+
+How do children acquire this knowledge? According to one view, once children learn their first 1-2 number words, they quickly infer that all number words denote unique, exact, numerosities. Previous studies establish that, beginning sometime after the age of 2, children learn the meanings of the words 'one', 'two', and 'three' one at a time over the course of 1-2 years, during which time they are known as "subset knowers" [since they know the meanings of only a subset of numbers, e.g., @wynn1990; @wynn1992]. According to @sarnecka2004, knowledge of these first few number word meanings might be sufficient to support an inference that all number words denote unique, exact, numerosities, and therefore that sets which differ in number should receive different numerical labels, while equinumerous sets should receive the same labels. In support of this hypothesis, @sarnecka2004 presented subset knowers with a set labeled with a number word (“Look, there are five frogs”), and found that when an item was added or subtracted from the set, children judged that a different number word should be used. Children also correctly reasoned that the same number word should be used when the transformation did not change the quantity, such as shaking the box containing the items. Notably, these judgments extended to number words beyond subset knowers’ performance in a Give-N task, but not to other quantifiers such as ‘a lot’. Other studies, however, have questioned these findings, showing that children fail with highly similar tasks [@condry2008; @sarnecka2013], and that simpler explanations that do not involve exact number knowledge can explain the data, including pragmatic inferences like the principle of contrast [@brooks2013; see @izard2014 for a discussion].
+
+According to an alternative hypothesis, children only understand that number words denote unique, exact, numerosities when they can construct and provide the cardinal label for any sets they can count [@carey2004; @carey2009; @condry2008; @sarnecka2013]. Sometime after they learn the meanings of 'one', 'two', and 'three', children appear to discover that counting can be used to both construct large sets and label their cardinalities, at which point they are sometimes called "Cardinal Principle" knowers (or CP knowers). According to some proposals, learning to accurately count and construct large sets establishes children’s understanding of how number words represent cardinality. This is because mastery of counting requires establishing 1-to-1 correspondence between labels and counted objects, thus guaranteeing that any counts to a particular number - like five - will result in the same quantity [@carey2004; @carey2009]. As evidence for this, previous studies have found that CP knowers outperform subset knowers in tests of cardinal extension. When shown two sets that appear equal in number, CP knowers often correctly extend a number word (e.g., 'five') that labels one set to the other, while subset knowers fail at the same task [@sarnecka2013; @sarnecka2004]. Similarly, when shown a set of items labeled with a number word, e.g., ‘four turtles’, and asked to distinguish between two sets to find a set with the same number word label, CP knowers, but not subset knowers, succeed [@slusser2011]. 
+
+However, some have suggested that the ability to accurately count and label large sets may reflect rote procedures [@davidson2012], and that many CP knowers still don’t understand that every number word denotes a unique cardinality, or that equinumerous sets should receive the same cardinal label. As evidence for this, although CP knowers outperform subset knowers on tests of cardinal extension, they rarely perform at ceiling, failing from 15% to 40% of the trials depending of the task [@sarnecka2013; @sarnecka2004; @slusser2011]. In fact, multiple past studies report variability on tests of cardinal extension until up to 5 years of age [@muldoon2005; @sophian1995; @frydman1988; @muldoon2003]. Adding to doubt that children master cardinal extension when they become CP knowers is the fact that children as old as 6 (beyond the age most children in Western, English-speaking contexts become CP knowers) often fail on tasks that test non-verbal understanding of 1-to-1 correspondence [@piaget1965; @russac1978; @schneider2022]. 
+
+<!-- Other studies, however, have argued that not all CP knowers succeed at this task even for small numbers like ‘four’ and ‘five’ and that many fail for larger numbers, even if they are familiar to children [@cheung2017; @davidson2012; @spaepen2018]. -->
+<!-- Also compatible with a later learning trajectory, some studies found that when shown a set of, e.g., eight items, many CP knowers are unable to exactly match this set using 1-to-1 correspondence, and instead match sets approximately [@schneider2020]. -->
+<!-- Finally, children’s success in classic Piagetian conservation tasks [@piaget1952] shows variability well after the age that most children become CP knowers, suggesting that CP knowledge does not correspond with success in these tasks. -->
+
+<!-- In particular, Carey [-@carey2004; -@carey2009] proposed that learning the Cardinal Principle (CP) involves making an analogical mapping between counting and number - that for every item added to a set, one should count up one number in the count list, such that objects and number words are in 1-to-1 correspondence [see also @gentner2010]. -->
+<!-- In support of this, @sarnecka2008 argued that CP knowers understand that adding one item to the set means moving forward one word in the count list (e.g., ‘four’ to ‘five’), but that subset knowers do not. -->
+
+<!-- To summarize, previous studies disagree regarding the role that counting plays in discovering how number words encode exact number. -->
+<!-- Some studies argue that knowledge of exactness is learned prior to mastery of counting principles, while others argue that this knowledge emerges when children become CP knowers, or that CP-knowledge is only a first step in understanding exact number.  -->
+<!-- One approach to investigate children’s ability to understand exact number meaning is testing whether children extend a number label across sets that are exactly equal – termed the ‘cardinal extension’ principle. -->
+<!-- @frydman1988 showed that when two sets were obtained after a sharing procedure, preschoolers were able to infer the cardinality of one set by counting only the other set.  -->
+<!-- @muldoon2003 demonstrated that preschoolers were able to count out and construct a set that is equivalent to a set they already counted. However, these studies did not assess children’s understanding of counting or the CP, leaving open the question of what role CP knowledge plays in cardinal extension.  -->
+
+To summarize, previous studies have debated when and how children acquire cardinal extension - i.e., understanding that two equal sets should receive the same label, and that two sets are equal only if their elements stand in 1-to-1 correspondence. Some argue that this knowledge emerges after children learn just 1-2 small number words, while others argue that it develops when children become CP knowers, or even sometime after this. Critically, however, previous studies testing cardinal extension are limited in various ways that make it difficult to know how such knowledge actually arises. First, some studies found variability in cardinal extension understanding between the ages of 3 and 5, but did not assess children’s understanding of counting or the CP, leaving open the question of what role CP knowledge plays in cardinal extension understanding [e.g., @frydman1988; @muldoon2003; @muldoon2005; @sophian1995]. Second, other studies have classified children as subset knowers or CP knowers and tested differences between these groups, but have not analyzed sources of individual differences between children within these groups [e.g., @sarnecka2004; @sarnecka2013; @slusser2011]. Third, while cardinal extension requires two components (recognizing equinumerous sets and understanding that such sets share the same number label), previous studies typically test only one or the other, but rarely test both. Crucially, most studies that attempt to test both children’s reasoning about equinumerosity and how they use this knowledge to extend number labels [e.g., @sarnecka2004] do not differentiate between reasoning about exact vs. approximate representations of number. This is important, because children might represent two sets as "the same" using approximate representations of number [ANS, @cordes2001; @whalen1999; @feigenson2004], even if the sets violate 1-to-1 correspondence and differ by 1 item. Consequently, to be sure that children extend number words to sets that are exactly equal, it’s critical to ensure that their extension is not based on approximate matches between sets.
+
+<!-- Other studies investigating how knowledge of the CP relates to cardinal extension found that CP knowers perform better than subset knowers in cardinal extension tasks. For example, when shown two sets that appear equal in number, CP knowers often correctly judge that if a number word, e.g., ‘five,’ applies to one set, it should also apply to the other, but subset knowers fail to do so [@sarnecka2004; @sarnecka2013]. Nonetheless, these studies focused on reporting differences between CP knowers and subset knowers, but did not explore variability among CP knowers to establish whether all CP knowers succeed (supporting the idea that exact number knowledge emerges with acquisition of the CP) or if instead, only some CP knowers succeed (compatible with a later learning trajectory).  -->
+
+<!-- Another limitation of previous studies is that they did not investigate whether children based their reasoning on exact set equality or simply noticed that two sets have approximately the same number of items. Approximate number representation is used to discriminate sets in infants as young as 6-month-olds [@xu2000], but is limited by the ratio between sets. -->
+<!-- This limit decreases in older children and adults, but still inhibits their ability to accurately determine whether two sets are exactly equal [@halberda2008; @huntleyfenner2000]. -->
+<!-- Meanwhile, exact symbolic number knowledge supports precise representations of numerosities, allowing for accurate set comparisons even for sets beyond the subitizable range with perceptually non-discriminable ratios [see @feigenson2004 for a discussion]. -->
+
+The present studies aimed to address the limitations of past reports. We presented subset knowers and CP knowers with two sets of animals in unequal numbers (e.g., 5 bunnies and 7 lions). Animals in each group carried items (e.g., the bunnies had blue hats and the lions had red hats), such that the number of items was exactly equal to the number of animals in each group. One set (e.g., the bunnies) was then hidden, and children were prompted to infer how many animals were hidden. We asked whether they would count the correct visible objects (e.g., the bunnies’ hats) to infer the number of hidden animals, compatible with knowledge that two sets have the same number of items - and deserve the same numerical label - if they stand in 1-to-1 correspondence. In Study 2, we provided a stronger test of whether children who succeed in reasoning about set equality do so through reasoning about exact equality or approximate magnitudes. To do so, we contrasted a condition that required reasoning about 1-to-1 correspondence vs. a condition that could be solved using approximate number knowledge. We report the main results of these studies for the purposes of this short paper. Readers are encouraged to refer to @le2024 for a more comprehensive analysis and additional discussion.
+
+```{r get data}
+df.ppt_raw_1 <- read.csv('../data/exp1/PROCESSED_DATA/exp1_ppt.csv')
+df.trial_raw_1 <- read.csv('../data/exp1/PROCESSED_DATA/exp1_trial.csv')
+
+df.ppt_raw_2 <- read.csv('../data/exp2/PROCESSED_DATA/exp2_ppt.csv')
+df.trial_raw_2 <- read.csv('../data/exp2/PROCESSED_DATA/exp2_trial.csv')
+```
+
+```{r study1 - exclusions}
+#exclusions go here (or in a separate thing)
+# exclude participants who missed more than 1 trial (completed fewer than 5)
+ppt_excluded_completion_1 <- df.trial_raw_1 %>% 
+  filter(is.na(count)) %>%
+  group_by(id) %>%
+  summarise(n_no_count = n()) %>%
+  filter(n_no_count > 1) %>%
+  pull(id)
+
+df.ppt_1 <- df.ppt_raw_1 %>%
+  filter(!id %in% ppt_excluded_completion_1)
+
+df.trial_1 <- df.trial_raw_1 %>%
+  filter(!id %in% ppt_excluded_completion_1, 
+         exclude != "Y")
+```
+
+```{r study2 - exclusions}
+ppt_excluded_completion_2 <- df.trial_raw_2 %>% 
+  filter(is.na(count) & is.na(set_chosen)) %>%
+  group_by(id) %>%
+  summarise(n_no_count = n()) %>%
+  filter(n_no_count > 1) %>%
+  pull(id)
+
+df.ppt_2 <- df.ppt_raw_2 %>%
+  filter(!id %in% ppt_excluded_completion_2)
+
+df.trial_precounted_2 <- df.trial_raw_2 %>%
+  filter(!is.na(precounted))
+
+df.trial_2 <- df.trial_raw_2 %>%
+  filter(!id %in% ppt_excluded_completion_2) %>%
+  filter(is.na(precounted))
+```
+
+```{r refactor}
+df.trial_1 <- df.trial_1 %>% 
+  mutate(knower_level_cp_subset = factor(knower_level_cp_subset, levels = c("subset", "CP")),
+         magnitude = factor(magnitude, levels = c("small", "large")))
+
+df.trial_2 <- df.trial_2 %>% 
+  mutate(trial_type = factor(trial_type, levels = c("small", "large-DR", "large-NDR"), 
+                             labels = c("small", "large-DR", "large-NR")))
+```
+
+# Study 1: When does children's understanding of cardinal extension develop?
+
+## Methods
+
+### Participants
+
+```{r study1 - summarize ppt}
+df.ppt_knower_level_1 <- df.ppt_1 %>%
+  count(knower_level_cp_subset)
+
+df.ppt_knower_level_gender_1 <- df.ppt_1 %>%
+  count(knower_level_cp_subset, gender)
+
+df.ppt_summary_1 <- df.ppt_1 %>%
+  group_by(knower_level_cp_subset) %>%
+  summarise(mean_age = mean(age_years_cont),
+            sd_age = sd(age_years_cont), 
+            min_age = min(age_years_cont), 
+            max_age = max(age_years_cont))
+```
+
+A preregistration is available at https://osf.io/3v2cn. 
+Eighty-four^[We recruited four more CP knowers than preregistered due to an initial knower-level coding error.] children were recruited from preschools in the US and Canada, and a children's museum in the US.
+All participants spoke English as a primary language. Based on preregistered criteria, we excluded `r ppt_excluded_completion_1 %>% length() %>% printnum(., numerals = F)` participants who did not provide a response for more than one trial of the Cardinal Extension task, and `r df.trial_raw_1 %>% filter(exclude == "Y") %>% nrow() %>% printnum(., numerals = F)` trials due to experimenter error. Our final sample included `r df.ppt_1 %>% count() %>% pull(n)` children, with `r df.ppt_knower_level_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(n)` subset knowers (`r df.ppt_knower_level_gender_1 %>% filter(knower_level_cp_subset == "subset", gender == "F") %>% pull(n)`F, `r df.ppt_knower_level_gender_1 %>% filter(knower_level_cp_subset == "subset", gender == "M") %>% pull(n)`M; $M_{age}$ = `r df.ppt_summary_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(mean_age) %>% force_decimals()` [`r df.ppt_summary_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(min_age) %>% force_decimals()`; `r df.ppt_summary_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(max_age) %>% force_decimals()`]; $SD_{age}$ = `r df.ppt_summary_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(sd_age) %>% force_decimals()`) and `r df.ppt_knower_level_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(n)` CP knowers (`r df.ppt_knower_level_gender_1 %>% filter(knower_level_cp_subset == "CP", gender == "F") %>% pull(n)`F, `r df.ppt_knower_level_gender_1 %>% filter(knower_level_cp_subset == "CP", gender == "M") %>% pull(n)`M; $M_{age}$ = `r df.ppt_summary_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(mean_age) %>% force_decimals()` [`r df.ppt_summary_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(min_age) %>% force_decimals()`; `r df.ppt_summary_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(max_age) %>% force_decimals()`]; $SD_{age}$ = `r df.ppt_summary_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(sd_age) %>% force_decimals()`).
+
+### Materials & Procedure
+
+All materials, data, and analysis code for Studies 1 and 2 are available at https://osf.io/eswa4.
+
+\vspace{10pt}
+\noindent
+***Give-N.*** Participants were given a titrated Give-N task [following the procedure in @wynn1992] to assess their understanding of the CP. Participants were shown a box with fish and a plate, and were asked to “put N fish on the plate” All participants started with ‘five’, received increasingly higher numbers ($N$+1, up to ‘six’) if they succeeded and lower numbers ($N$-1) if they failed. We recorded the highest number for which a participant can construct correct sets two out of three times. If the child constructed the wrong set, they were prompted once to “count to make  sure” and  allowed to fix their response. Children who could not construct a set of ‘one’ were not tested based on preregistered criteria. Children who succeeded on sets of ‘five’ or ‘six’ on at least two out of three trials were designated as CP knowers, and those who only succeeded on smaller numbers were designated as subset knowers.
+
+\vspace{10pt}
+\noindent
+***Cardinal Extension.*** Materials were prepared and presented as a slidedeck with recorded audio descriptions. Participants were first introduced to the animals used in the task (lions and bunnies). They saw two familiarization trials with three animals, and each animal was associated with one item (e.g., each bunny has a bike). They were asked to report the number of animals by pointing to the screen and counting to familiarize them with the expectations in the critical trials.
+
+\noindent
+```{r task_schematic, fig.env = "figure", fig.pos = "h", fig.align='center', num.cols.cap=1, fig.width = 3.4, fig.height = 3.4, fig.cap = "A) Materials for Study 1. B) Study 2 includes only 1 animal set with 2 item sets. Left: Visual materials. Right: Corresponding audio description."}
+img <- png::readPNG("figs/task-final.png")
+grid::grid.raster(img) 
+```
+
+In each critical trial (Figure 1A), participants saw two unequal groups of animals (e.g., 5 bunnies and 7 lions), each on one side of the screen. Each animal group was shown in 1-to-1 correspondence with an item set (e.g., 5 bunnies – 5 blue hats vs. 7 lions – 7 pink red hats). Animal and item sets were organized in a line with equal spacing to facilitate element tracking and counting. The animals then put down their items and disappeared into a building. Participants were then asked for the number of one set of animals (e.g., “How many bunnies are in the school?”). We reasoned that if children recognized that sets in 1-to-1 correspondence share the same number, they should use the correct items to infer the number of animals (e.g., counting the blue hats when asked about the bunnies). Participants were encouraged to point and explicitly count the items. If counting resulted in a different response, we analyzed the final count. Participants were allowed one opportunity to fix a wrong response.
+
+Participants saw six critical trials in total: three small-set trials where sets < 4, and three large-set trials where sets > 4. Participants saw one out of six pseudo-randomized trial orders. Trials were counterbalanced for the target animals, side of set appearance, and which animal set is larger.
+
+\vspace{10pt}
+\noindent
+***Highest Count.*** This task was included as a general proxy of counting experience, to allow us to differentiate between CP knowers with different degrees of counting expertise. Participants were asked to “count as high as [they] can,” beginning from one, and prompted once after they stopped to keep counting. We recorded the highest number they reached without errors. As a preview, Highest Count was not a significant predictor of performance in either study, so we omitted results related to this measure for the purposes of this short paper.
+
+## Results & Discussion
+
+```{r study1 - descriptives}
+df.summary_knower_level_correct_set_chosen_1 <- df.trial_1 %>%
+  group_by(knower_level_cp_subset) %>%
+  summarise(mean = mean(correct_set_chosen), sd = sd(correct_set_chosen))
+
+df.summary_magnitude_correct_set_chosen_1 <- df.trial_1 %>%
+  group_by(magnitude) %>%
+  summarise(mean = mean(correct_set_chosen), sd = sd(correct_set_chosen))
+```
+
+```{r study1 - t tests}
+t_subset_1 <- t.test(df.trial_1 %>% 
+         filter(knower_level_cp_subset == "subset") %>%
+         pull(correct_set_chosen),
+       mu = 0.5)
+
+t_cp_1 <- t.test(df.trial_1 %>% 
+                   filter(knower_level_cp_subset == "CP") %>%
+                   pull(correct_set_chosen),
+                 mu = 0.5)
+
+t_small_cp_1 <-t.test(df.trial_1 %>% 
+         filter(magnitude == "small", 
+                knower_level_cp_subset == "CP") %>%
+         pull(correct_set_chosen),
+       mu = 0.5)
+
+t_large_cp_1 <- t.test(df.trial_1 %>% 
+         filter(magnitude == "large", 
+                knower_level_cp_subset == "CP") %>%
+         pull(correct_set_chosen),
+       mu = 0.5)
+
+t_small_subset_1 <-t.test(df.trial_1 %>% 
+         filter(magnitude == "small", 
+                knower_level_cp_subset == "subset") %>%
+         pull(correct_set_chosen),
+       mu = 0.5)
+
+t_large_subset_1 <- t.test(df.trial_1 %>% 
+         filter(magnitude == "large", 
+                knower_level_cp_subset == "subset") %>%
+         pull(correct_set_chosen),
+       mu = 0.5)
+```
+
+```{r study1 - CP variability}
+df.cp_summary_1 <- df.trial_1 %>%
+  filter(knower_level_cp_subset == "CP") %>%
+  group_by(id) %>%
+  summarise(mean_correct_set_chosen = mean(correct_set_chosen))
+```
+
+Our primary question was whether CP knowers were more likely to succeed at the Cardinal Extension task compared to subset knowers across both small and large sets. We first asked whether participants selected the correct set, either by pointing to the set that was equal to the target animal set, or by giving the correct count for the target animal set\footnote{We assumed that children would not be able to report the correct cardinality without identifying the correct set.}.
+Two-tailed one-sample t-tests showed that only CP knowers ($M$ = `r df.summary_knower_level_correct_set_chosen_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(mean) %>% force_decimals()`, $SD$ = `r df.summary_knower_level_correct_set_chosen_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(sd) %>% force_decimals()`) performed better than chance at identifying the correct item set to infer the number of hidden animals (`r print_ttest(t_cp_1)`), and they succeeded for both small and large sets ($p$s < .001). Meanwhile, subset knowers ($M$ = `r df.summary_knower_level_correct_set_chosen_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(mean) %>% force_decimals()`, $SD$ = `r df.summary_knower_level_correct_set_chosen_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(sd) %>% force_decimals()`) performed at chance (`r print_ttest(t_subset_1)`), and failed to identify the correct set for both small and large sets ($p$s > .05) (Figure 2A).
+Additionally, there was variability in CP knowers’ performance: out of `r df.ppt_knower_level_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(n)` CP knowers, only `r df.cp_summary_1 %>% filter(mean_correct_set_chosen == 1) %>% count() %>% pull(n)` (`r force_decimals(df.cp_summary_1 %>% filter(mean_correct_set_chosen == 1) %>% count() %>% pull(n) / df.ppt_knower_level_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(n) * 100)`%) succeeded in identifying the correct set (either by attempting to count the correct set, or giving the correct numerical response without counting) in all six trials (binomial $p$ < .05). `r df.cp_summary_1 %>% filter(mean_correct_set_chosen <= 0.5) %>% nrow() %>% printnum(., numerals = F, capitalize = T)` CP knowers (`r force_decimals(df.cp_summary_1 %>% filter(mean_correct_set_chosen <= 0.5) %>% count() %>% pull(n) / df.ppt_knower_level_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(n) * 100)`%) succeeded in only half of the trials or fewer. These results provide evidence that the ability to reason about cardinal extension does not develop when the CP is acquired, but rather after the CP knowledge stage.
+
+```{r study1 - regressions - set base, include = F}
+fit.base_set_1 <- glmer(correct_set_chosen ~ 
+                          magnitude + age_zscored + (1|id) 
+                        + (1|trial_ratio)
+                        , 
+                  data = df.trial_1, family="binomial")
+summary(fit.base_set_1)
+fit.anova.base_set_1 <- Anova(fit.base_set_1, type = 3)
+```
+
+```{r study1 - regressions - set base split, include = F}
+#not-registered
+#split by knower level
+fit.base_set_cp_1 <- glmer(correct_set_chosen ~ magnitude + age_zscored + (1|id) 
+                           + (1|trial_ratio)
+                           , 
+                     data = df.trial_1 %>% filter(knower_level_cp_subset == "CP"), 
+                     family="binomial")
+summary(fit.base_set_cp_1)
+fit.anova.base_set_cp_1 <- Anova(fit.base_set_cp_1, type = 3)
+
+fit.base_set_subset_1 <- glmer(correct_set_chosen ~ magnitude + age_zscored + (1|id)
+                               
+                               + (1|trial_ratio)
+                               , 
+                     data = df.trial_1 %>% filter(knower_level_cp_subset == "subset"), 
+                     family="binomial")
+summary(fit.base_set_subset_1)
+fit.anova.base_set_subset_1 <- Anova(fit.base_set_subset_1, type = 3)
+```
+
+In order to further analyze the effect of CP knowledge on cardinal extension performance, we constructed generalized mixed-effects logistic regression models (GLMMs) predicting correct set selection with age (z-scored), set size (Small/Large), knower level (CP knowers/Subset knowers), and knower level*set size interaction as fixed effects. We compared all models against a base model that included only age and set size as predictors. All models included by-subject and by-item random intercepts.
+
+```{r study1-figure, fig.align="center", fig.cap = "Each dot represents a participant. The width of the shaded area of violin plots represents the proportion of the data located there. A) Proportion of correct item set choice by participant against knower level. Horizontal dashed line indicates performance at chance = 0.50. B) Proportion of correct numerical response by participant against knower level.", fig.height=2.1, fig.width=3.4, include = T}
+plot1 <- ggplot(data = df.trial_1 %>%
+         mutate(magnitude = factor(magnitude, levels = c("small", "large"), labels = c("small sets", "large sets")), 
+                         knower_level_cp_subset = factor(knower_level_cp_subset, levels = c("subset", "CP"))) %>%
+         group_by(id, magnitude, knower_level_cp_subset) %>%
+         summarise(mean_correct_set_chosen = mean(correct_set_chosen, na.rm = TRUE)),
+       mapping = aes(x = knower_level_cp_subset, y = mean_correct_set_chosen)) + 
+  geom_violin(aes(fill = knower_level_cp_subset)) +
+  geom_jitter(height = 0, 
+              alpha = 0.3, 
+              size = 0.6) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange",
+               size = 0.15) +
+    facet_grid(~ magnitude) + 
+    scale_fill_manual(values=cbPalette) + 
+  geom_hline(yintercept = 0.5, linetype = 2) +
+  theme(legend.position = "none", 
+        text = element_text(size = 8), 
+        panel.spacing = unit(0.25, "lines"),
+        plot.margin = unit(c(0,0.1,0.25,0.1), "cm")) + 
+  labs(y = "Prop. correct set choice", 
+       x = "Knower Level") 
+
+plot2 <- ggplot(data = df.trial_1 %>%
+         group_by(id, magnitude, knower_level_cp_subset) %>%
+         mutate(magnitude = factor(magnitude, levels = c("small", "large"), labels = c("small sets", "large sets")), 
+                         knower_level_cp_subset = factor(knower_level_cp_subset, levels = c("subset", "CP"))) %>%
+         summarise(mean_correct_count = mean(correct_count_when_correct_set_chosen, na.rm = TRUE)), 
+       mapping = aes(x = knower_level_cp_subset, y = mean_correct_count)) + 
+  geom_violin(aes(fill = knower_level_cp_subset)) +
+  geom_jitter(height = 0, 
+              alpha = 0.3,
+              size = 0.6) +  
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange", 
+               size = 0.15) +
+    facet_grid(~ magnitude) + 
+  scale_fill_manual(values=cbPalette) + 
+  theme(legend.position = "none", 
+        text = element_text(size = 8), 
+        panel.spacing = unit(0.25, "lines"),
+        plot.margin = unit(c(0,0.1,0.25,0.1), "cm")) + 
+  labs(y = "Prop. correct animal count", 
+       x = "Knower Level")
+
+combined_plot <- plot_grid(plot1, plot2, labels = c('A', 'B'), 
+                           label_size = 10)
+plot_grid(combined_plot, ncol=1,rel_heights = c(1, .1))
+```
+
+```{r study1-figure-old, fig.align="center", fig.cap="Each dot represents a participant. Shaded areas represent 95% confidence intervals. Responses are grouped by knower level and set size. A) Proportion of correct item set choice by participant against age. B) Proportion of correct animal quantity response by participant against age.", fig.env="figure", fig.height=2.3, fig.pos="h", fig.width=3.4, include = F}
+plot1 <- ggplot(data = df.trial_1 %>%
+                  mutate(magnitude = factor(magnitude, levels = c("small", "large"), labels = c("small sets", "large sets")), 
+                         knower_level_cp_subset = factor(knower_level_cp_subset, levels = c("CP", "subset"))) %>%
+         group_by(id, magnitude, knower_level_cp_subset, age_years_cont) %>%
+         summarise(mean_correct_set_chosen = mean(correct_set_chosen, na.rm = TRUE)),
+       mapping = aes(x = age_years_cont, y = mean_correct_set_chosen, 
+                     color = knower_level_cp_subset)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.3, 
+              size = 0.6) + 
+  facet_grid(~magnitude) +
+  ylim(0, 1) +
+  geom_smooth(method='lm', aes(fill = knower_level_cp_subset), 
+              size = 0.5) +
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) +
+  labs(x = "Age (years)",
+       y = "Prop. of correct set choice", 
+       fill = "Knower level", 
+       color = "Knower level") +
+  theme(legend.position="none", 
+        text = element_text(size = 8), 
+        plot.margin = unit(c(0,0.1,0.25,0.1), "cm")) 
+
+plot2 <- ggplot(data = df.trial_1 %>%
+                  mutate(magnitude = factor(magnitude, levels = c("small", "large"), labels = c("small sets", "large sets")), 
+                         knower_level_cp_subset = factor(knower_level_cp_subset, levels = c("CP", "subset"))) %>%
+         group_by(id, magnitude, knower_level_cp_subset, age_years_cont) %>%
+         summarise(mean_correct_count = mean(correct_count_when_correct_set_chosen, na.rm = TRUE)), 
+       mapping = aes(x = age_years_cont, y = mean_correct_count, 
+                     color = knower_level_cp_subset)) + 
+  geom_jitter(height = 0, 
+              alpha = 0.3, 
+              size = 0.6) + 
+  facet_grid(~magnitude) +
+  ylim(0, 1) +
+  geom_smooth(method='lm', aes(fill = knower_level_cp_subset), 
+              size = 0.5) +
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) +
+  labs(x = "Age (years)",
+       y = "Prop. of correct numerical response", 
+       fill = "Knower level", 
+       color = "Knower level") +
+  theme(legend.position="none",
+        text = element_text(size = 8), 
+        plot.margin = unit(c(0,0.1,0.25,0.1), "cm"))
+
+combined_plot <- plot_grid(plot1, plot2, labels = c('A', 'B'), label_size = 10)
+legend <- get_legend(plot1 + 
+                       theme(legend.position = "bottom", 
+                             plot.margin = unit(c(0,0,0,0), "cm")))
+plot_grid(combined_plot, legend, ncol=1, rel_heights = c(1, .1))
+
+```
+
+```{r study1 - regressions - set enhanced models, include = F}
+# knower level effect is wiped out by age effects
+fit.cp_age_set_1 <- glmer(correct_set_chosen ~ knower_level_cp_subset + magnitude + age_zscored + (1|id) 
+                          + (1|trial_ratio)
+                          , data = df.trial_1, family="binomial")
+summary(fit.cp_age_set_1)
+fit.anova.cp_age_set_1 <- Anova(fit.cp_age_set_1, type = 3)
+fit.compare.cp_age_set_1 <- anova(fit.cp_age_set_1, fit.base_set_1, type=3)
+
+fit.cp_age_int_set_1 <- glmer(correct_set_chosen ~ knower_level_cp_subset * magnitude + age_zscored + (1|id) 
+                          + (1|trial_ratio)
+                          , data = df.trial_1, family="binomial")
+summary(fit.cp_age_int_set_1)
+fit.anova.cp_age_int_set_1 <- Anova(fit.cp_age_int_set_1, type = 3)
+fit.compare.cp_age_int_set_1 <- anova(fit.cp_age_int_set_1, fit.cp_age_set_1, type=3)
+```
+
+Our base model showed a significant effect of age (`r print_coeff(fit.base_set_1, "age_zscored")`), with older children performing better than younger children. Set size (small vs large sets) did not further explain variation in performance (`r print_model_comp_p(fit.anova.base_set_1, "magnitude")`). Exploratory models analyzing subset knowers and CP knowers separately showed that this age effect was driven by only subset knowers (`r print_coeff(fit.base_set_subset_1, "age_zscored")`). Age did not predict performance in the CP knower group (`r print_coeff_p(fit.base_set_cp_1, "age_zscored")`). Adding knower level as a predictor significantly improved the fit of the model (`r print_model_comp(fit.compare.cp_age_set_1, "fit.cp_age_set_1")`), and revealed that CP knowers were significantly more likely than subset knowers to select the correct set, even when controlling for age (`r print_coeff(fit.cp_age_set_1, "knower_level_cp_subsetCP", "$_{CP}$")`). This model also showed a significant effect of age (`r print_coeff(fit.cp_age_set_1, "age_zscored")`) but not of set size  (`r print_model_comp_p(fit.anova.cp_age_set_1, "magnitude")`). Adding knower level*set size interaction did not further improve the model (`r print_model_comp_p(fit.compare.cp_age_int_set_1, "fit.cp_age_int_set_1")`). 
+
+```{r study1 - regressions - count base, include = F}
+fit.base_count_1 <- glmer(correct_count_when_correct_set_chosen ~ magnitude + age_zscored + (1|id) + (1|trial_ratio), 
+                          data = df.trial_1, family="binomial")
+summary(fit.base_count_1)
+fit.anova.base_count_1 <- Anova(fit.base_count_1, type = 3)
+```
+
+```{r study1 - regressions - count enhanced models, include = F}
+fit.cp_age_count_1 <- glmer(correct_count_when_correct_set_chosen ~ knower_level_cp_subset + magnitude + age_zscored + (1|id) + (1|trial_ratio), 
+                          data = df.trial_1, family="binomial")
+summary(fit.cp_age_count_1)
+fit.anova.cp_age_count_1 <- Anova(fit.cp_age_count_1, type = 3)
+fit.compare.cp_age_count_1 <- anova(fit.cp_age_count_1, fit.base_count_1, type = 3)
+
+fit.cp_age_int_count_1 <- glmer(correct_count_when_correct_set_chosen ~ knower_level_cp_subset * magnitude + age_zscored + (1|id) + (1|trial_ratio), 
+                          data = df.trial_1, family="binomial")
+summary(fit.cp_age_int_count_1)
+fit.anova.cp_age_int_count_1 <- Anova(fit.cp_age_int_count_1, type = 3)
+fit.compare.cp_age_int_count_vs_base_1 <- anova(fit.cp_age_int_count_1, fit.base_count_1, type = 3)
+fit.compare.cp_age_int_count_vs_noint_1 <- anova(fit.cp_age_int_count_1, fit.cp_age_count_1, type = 3)
+```
+
+In contrast to these initial analyses in which we considered success in the task as choosing the correct set corresponding to the hidden animals, in the next analysis we analyzed performance based on whether participants both choose the correct set, and correctly inferred the number of the hidden animal set by counting the correct item set.
+This is a more conservative measure of cardinal extension, because success requires not only attending to the equality of the animal and item sets, but also counting the selected item set accurately. We constructed another set of GLMMs with the same fixed and random effect structure as above to predict children's success in inferring the correct number of animals.
+
+The model that best explained the data included age, knower level, set size, and knower level\*set size interaction as predictors (compared against base model with only age and set size: `r print_model_comp(fit.compare.cp_age_int_count_vs_base_1, "fit.cp_age_int_count_1")`; compared against model with age, set size and knower level: `r print_model_comp(fit.compare.cp_age_int_count_vs_noint_1, "fit.cp_age_int_count_1")`). CP knowers were significantly better at determining the correct number of animals (`r print_coeff(fit.cp_age_int_count_1, "knower_level_cp_subsetCP", "$_{CP}$")`), as were older children (`r print_coeff(fit.cp_age_int_count_1, "age_zscored")`). We also found an effect of Set Size with children more likely to provide the correct numerical response in trials with small sets compared to those with large sets (`r print_coeff(fit.cp_age_int_count_1, "magnitudelarge", "$_{large}$")`). Additionally, the knower level\*set size interaction effect was significant, where subset knowers showed a larger difference in performance between small and large trials compared to CP knowers (`r print_coeff(fit.cp_age_int_count_1, "knower_level_cp_subsetCP:magnitudelarge", "$_{CP*large}$")`) (Figure 2B).
+
+# Study 2: Is CP knowers' success in cardinal extension based on exact equality?
+
+Study 1 showed that CP knowers are able to reason that sets that are equal in number can be labeled by the same number word. However, it leaves open how CP knowers might achieve this. One possibility is that they select the correct item set through noticing a 1-to-1 correspondence between items and animals (e.g., bunnies and hats). Alternatively, they might compare the approximate quantity of these sets (e.g., ‘approximately seven’ bunnies and ‘approximately seven’ hats). They might also succeed by simply noting the association between items and animals without attending to cardinality at all (e.g., the bunnies appeared with blue hats, therefore, count the blue hats).
+
+To probe whether CP knowers use exact or approximate quantities in reasoning about cardinal extension, and to eliminate the possibility of using identity associations between animals and items, we conducted a follow-up study that paired one animal set with two item sets in varying ratios. One item set was in 1-to-1 correspondence with the animal set. The distractor item set differed in either a perceptually discriminable manner (e.g., 5 hats - 10 bunnies), or were off by one in quantity and thus not discriminable (e.g., 9 hats - 10 bunnies). If CP knowers succeed in cardinal extension through reasoning about 1-to-1 correspondence they should succeed in both cases. However, if they used approximate quantities, they would succeed in trials with discriminable ratios, but not in the off-by-one trials. 
+
+## Methods
+
+### Participants
+
+```{r study2 - summarize ppt}
+df.gender_2 <- df.ppt_2 %>%
+  count(gender)
+
+df.ppt_summary_2 <- df.ppt_2 %>%
+  summarise(mean_age = mean(age_years_cont),
+            sd_age = sd(age_years_cont), 
+            min_age = min(age_years_cont), 
+            max_age = max(age_years_cont))
+```
+
+A preregistration is available at https://osf.io/zrsw2. Eighty children were recruited from preschools and a children’s museum in the US. Given the failure of subset knowers in Study 1, all participants were CP knowers who spoke English as a primary language. We excluded two participants who missed more than one trial of the Cardinal Extension task based on preregistered criteria. We also excluded `r df.trial_precounted_2 %>% count() %>% pull(n)` trials where participants started counting before the prompt.
+Our final sample included `r df.ppt_2 %>% count() %>% pull(n)` CP knowers (`r df.gender_2 %>% filter(gender == "F") %>% pull(n)`F, `r df.gender_2 %>% filter(gender == "M") %>% pull(n)`M; $M_{age}$ = `r df.ppt_summary_2 %>% pull(mean_age) %>% force_decimals()` [`r df.ppt_summary_2 %>% pull(min_age) %>% force_decimals()`; `r df.ppt_summary_2 %>% pull(max_age) %>% force_decimals()`]; $SD_{age}$ = `r df.ppt_summary_2 %>% pull(sd_age) %>% force_decimals()`).
+
+### Materials & Procedure
+
+Participants were given a Give-N task and a Highest Count task following the procedure from Study 1. To be confident that we included only CP knowers, we used a more conservative criterion for the Give-N task and classified children as CP knowers only if they succeeded at constructing sets of “six” two out of three times. Only children who were CP knowers in the Give-N task proceeded to the Cardinal Extension task.
+
+***Cardinal Extension.*** Materials and procedure were similar to Study 1, with any differences noted. In the familiarization phase, participants saw an additional trial with three animals (in this study, only bunnies), but only two of them had items and one of them did not. The bunny missing an item was pointed out to the participant (“This bunny doesn’t have a carrot.”) Participants were also asked to point and count the number of bunnies for this trial.
+
+In each critical trial, a set of bunnies appeared at the bottom of the screen with two sets of items (Figure 1B). One set of items (the target set) was exactly equal to the number of bunnies, and the other set (the distractor set) had fewer items. The audio description highlighted the violation of 1-to-1 correspondence between the distractor set and the target set in all conditions, and was accompanied by gestures to the bunnies that were missing items (e.g., ‘Some of the bunnies don’t have their hats.’). The bunnies then put down each item in each set one at a time, further emphasizing the 1-to-1 correspondence between the bunnies and the target set and the mismatch with the distractor set. Like Study 1, the bunnies then disappeared into a building, leaving their items behind. Participants were then asked for the number of bunnies. If children use 1-to-1 to reason about exact equality, they should use only the target set to infer the number of bunnies across conditions. If participants did not respond, did not overtly count, or made a counting mistake, they received prompts from the experimenter as described in Study 1.
+
+Participants saw nine trials in total: three small-set trials where sets < 4, and six large-set trials where sets > 4. Large-set trials included three with discriminable ratios (Large-DR) where the ratio between the bunnies and the distractor item set was >= 2, and three with non-discriminable ratios (Large-NR) where the distractor set had one fewer item than the number of bunnies. Participants saw one out of four pseudo-randomized trial orders and item pairings. The trials were partially-counterbalanced for order and location of item sets.
+
+## Results & Discussion
+
+```{r study2 - descriptives}
+df.summary_magnitude_correct_set_chosen_2 <- df.trial_2 %>%
+  group_by(trial_type) %>%
+  summarise(mean = mean(correct_set_chosen), sd = sd(correct_set_chosen))
+```
+
+```{r study2 - t-tests}
+t_all_2 <- t.test(df.trial_2 %>% 
+                    pull(correct_set_chosen), 
+                  mu = 0.5)
+
+t_small_2 <- t.test(df.trial_2 %>% 
+         filter(trial_type == "small") %>% 
+         pull(correct_set_chosen), 
+       mu = 0.5)
+
+t_largedr_2 <- t.test(df.trial_2 %>% 
+         filter(trial_type == "large-DR") %>% 
+         pull(correct_set_chosen), 
+       mu = 0.5)
+
+t_largenr_2 <- t.test(df.trial_2 %>% 
+         filter(trial_type == "large-NR") %>% 
+         pull(correct_set_chosen), 
+       mu = 0.5)
+```
+
+Our primary question was whether CP knowers were equally likely to choose the correct set to infer the number of bunnies across trials of different set sizes and ratios. Similar to the analysis for the previous study, we first looked at cardinal extension performance as indexed by whether the participant selected the correct set, either by pointing to the correct set or giving the correct number. Two-tailed one-sample t-tests showed that overall performance was better than chance (`r print_ttest(t_all_2)`).
+However, only performance in small trials ($M$ = `r df.summary_magnitude_correct_set_chosen_2 %>% filter(trial_type == "small") %>% pull(mean) %>% force_decimals()`, $SD$ = `r df.summary_magnitude_correct_set_chosen_2 %>% filter(trial_type == "small") %>% pull(sd) %>% force_decimals()`) and large-DR trials ($M$ = `r df.summary_magnitude_correct_set_chosen_2 %>% filter(trial_type == "large-DR") %>% pull(mean) %>% force_decimals()`, $SD$ = `r df.summary_magnitude_correct_set_chosen_2 %>% filter(trial_type == "large-DR") %>% pull(sd) %>% force_decimals()`) were better than chance (small trials: `r print_ttest(t_small_2)`, large-DR trials: `r print_ttest(t_largedr_2)`).
+In large-NR trials ($M$ = `r df.summary_magnitude_correct_set_chosen_2 %>% filter(trial_type == "large-NR") %>% pull(mean) %>% force_decimals()`, $SD$ = `r df.summary_magnitude_correct_set_chosen_2 %>% filter(trial_type == "large-NR") %>% pull(sd) %>% force_decimals()`), CP knowers performed at chance (`r print_ttest(t_largenr_2)`) (Figure 3).
+This suggests that CP knowers relied on approximate number representations to complete the task, but failed whenever 1-to-1 correspondence was required to differentiate sets.
+
+```{r study2-figure, fig.align="center",fig.env='figure', fig.cap = "Proportion of correct item set choice by participant against trial type. Each dot represents a participant. Horizontal dashed line indicates performance at chance = 0.50.", fig.height=2, fig.width = 3.4, fig.pos="h"}
+ggplot(data = df.trial_2 %>% 
+         mutate(trial_type = factor(trial_type, labels = c("small sets\n (e.g., 1:2)", "large sets,\n discriminable \n ratio (e.g., 5:10)", "large sets,\n off-by-one \n(e.g., 9:10)"))) %>%
+         group_by(id, age_years, trial_type) %>%
+         summarise(mean_correct_set = mean(correct_set_chosen, na.rm = FALSE)), 
+       mapping = aes(x = trial_type, y = mean_correct_set)) +
+  geom_violin(aes(fill = trial_type)) +
+  geom_jitter(height = 0, 
+              alpha = 0.3, 
+              size = 0.6, 
+              aes(group = id)) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange", 
+               size = 0.25) +
+  geom_hline(yintercept = 0.5, linetype = 2) +
+  theme(legend.position = "none", 
+        text = element_text(size = 8)) + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) +
+  labs(y = "Prop. correct set choice", 
+       x = "Set Size and Ratio"
+       ) 
+```
+
+```{r study2-figure-old, fig.align="center",fig.env='figure', fig.cap = "Each dot represents a participant. A) Proportion of correct item set choice by participant against trial type. Horizontal dashed line indicates performance at chance = 0.50. B) Proportion of correct numerical response by participant against trial type.", fig.height=2.3, fig.width = 3.4, fig.pos="h", include = F}
+plot3 <- ggplot(data = df.trial_2 %>% 
+         mutate(trial_type = factor(trial_type, labels = c("small sets\n (e.g., 1:2)", "large sets,\n discriminable \n ratio (e.g., 5:10)", "large sets,\n off-by-one \n(e.g., 9:10)"))) %>%
+         group_by(id, age_years, trial_type) %>%
+         summarise(mean_correct_set = mean(correct_set_chosen, na.rm = FALSE)), 
+       mapping = aes(x = trial_type, y = mean_correct_set)) +
+  geom_violin(aes(fill = trial_type)) +
+  geom_jitter(height = 0, 
+              alpha = 0.3, 
+              size = 0.6, 
+              aes(group = id)) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange") +
+  geom_hline(yintercept = 0.5, linetype = 2) +
+  theme(legend.position = "none", 
+        text = element_text(size = 8),
+        plot.margin = unit(c(0,0.1,0.25,0.1), "cm")) + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) +
+  labs(y = "Prop. correct set choice", 
+       x = "Set Size and Ratio"
+       ) 
+
+plot4 <- ggplot(data = df.trial_2 %>% 
+         mutate(trial_type = factor(trial_type, labels = c("small sets\n (e.g., 1:2)", "large sets,\n discriminable \n ratio (e.g., 5:10)", "large sets,\n off-by-one \n(e.g., 9:10)"))) %>%
+         group_by(id, trial_type) %>%
+         summarise(mean_correct_count_with_set = mean(correct_count_when_correct_set_chosen, na.rm = FALSE)), 
+       mapping = aes(x = trial_type, y = mean_correct_count_with_set)) +
+  geom_violin(aes(fill = trial_type)) +
+  geom_jitter(height = 0, 
+              alpha = 0.3, 
+              size = 0.6, 
+              aes(group = id)) + 
+  stat_summary(fun.data = "mean_cl_boot", 
+               geom = "pointrange", 
+               size = 0.4) +
+  theme(legend.position = "none", 
+        text = element_text(size = 8),
+        plot.margin = unit(c(0,0.1,0.25,0.1), "cm")) + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) +
+  labs(y = "Prop. correct numerical response", 
+       x = "Set Size and Ratio") 
+
+combined_plot <- plot_grid(plot3, plot4, labels = c('A', 'B'))
+plot_grid(combined_plot, ncol=1,rel_heights = c(1, .1))
+```
+
+```{r study2 - regressions - set, include = F}
+#no effect of age
+fit.base_set_2 <- glmer(correct_set_chosen ~ age_zscored + (1|id) + (1|trial_ratio), data = df.trial_2, family="binomial")
+summary(fit.base_set_2)
+fit.anova.base_set_2 <- Anova(fit.base_set_2, type = 3)
+
+#there is an effect of trial type
+fit.trial_type_set_2 <- glmer(correct_set_chosen ~ trial_type + age_zscored + (1|id) + (1|trial_ratio), 
+                        data = df.trial_2, 
+                        family="binomial")
+summary(fit.trial_type_set_2)
+fit.anova.trial_type_set_2 <- Anova(fit.trial_type_set_2, type = 3)
+
+fit.compare.trial_type_set_2 <- anova(fit.trial_type_set_2, fit.base_set_2, type = 3)
+
+# significant difference between DR and NDR, and between NDR and small. only difference between NDR and small is significant after Bonferroni correction. 
+fit.contr.trial_type_set_2 <- summary(fit.trial_type_set_2 %>% 
+                                    emmeans(specs = pairwise ~ trial_type,
+                                            adjust = "bonferroni") %>% 
+                                    pluck("contrasts"))
+```
+
+To further analyze the effect of trial type on whether participants selected the correct set, we ran GLMMs predicting correct item set choice with age (z-scored) and trial type (Small/Large-DR/Large-NR) as fixed effects. We compared this model against a base model that includes only age as fixed effects. All models included by-subject and by-item random intercepts. 
+
+We found no effect of age in our base model (`r format_p(fit.anova.base_set_2["age_zscored", "Pr(>Chisq)"])`). When trial type was included as a fixed effect, we found a significant effect of trial type ($\chi^2$(`r fit.anova.trial_type_set_2["trial_type", "Df"]`) = `r force_decimals(fit.anova.trial_type_set_2["trial_type", "Chisq"])`, `r format_p(fit.anova.trial_type_set_2["trial_type", "Pr(>Chisq)"])`), and still no effect of age (`r format_p(fit.anova.trial_type_set_2["age_zscored", "Pr(>Chisq)"])`). The enhanced model explained significantly more variation in the observed data compared to the base model in a likelihood ratio test ($\chi^2$(`r fit.compare.trial_type_set_2["fit.trial_type_set_2", "Df"]`) = `r force_decimals(fit.compare.trial_type_set_2["fit.trial_type_set_2", "Chisq"])`, `r format_p(fit.compare.trial_type_set_2["fit.trial_type_set_2", "Pr(>Chisq)"])`). *Post hoc* pairwise comparisons between the three trial types (Small, Large-DR, Large-NR) with Bonferroni corrections showed that CP knowers were more likely to succeed in Small trials compared to Large-DR trials ($z$ = `r fit.contr.trial_type_set_2 %>% filter(contrast == "small - (large-DR)") %>% pull(z.ratio) %>% force_decimals()`, `r fit.contr.trial_type_set_2 %>% filter(contrast == "small - (large-DR)") %>% pull(p.value) %>% format_p()`) and Large-NR trials ($z$ = `r fit.contr.trial_type_set_2 %>% filter(contrast == "small - (large-NR)") %>% pull(z.ratio) %>% force_decimals()`, `r fit.contr.trial_type_set_2 %>% filter(contrast == "small - (large-NR)") %>% pull(p.value) %>% format_p()`). Success in Large-DR trials was also significantly higher than in Large-NR trials ($z$ = `r fit.contr.trial_type_set_2 %>% filter(contrast == "(large-DR) - (large-NR)") %>% pull(z.ratio) %>% force_decimals()`, `r fit.contr.trial_type_set_2 %>% filter(contrast == "(large-DR) - (large-NR)") %>% pull(p.value) %>% format_p()`).
+
+```{r study2 - regressions - count, include = F}
+#no effect of age
+fit.base_count_2 <- glmer(correct_count_when_correct_set_chosen ~ age_zscored + (1|id) 
+                          #+ (1|trial_ratio)
+                          , data = df.trial_2, family="binomial")
+summary(fit.base_count_2)
+fit.anova.base_count_2 <- Anova(fit.base_count_2, type = 3)
+
+#there is an effect of trial type
+fit.trial_type_count_2 <- glmer(correct_count_when_correct_set_chosen ~ trial_type + age_zscored + (1|id) 
+                                #+ (1|trial_ratio)
+                                , 
+                        data = df.trial_2, 
+                        family="binomial")
+summary(fit.trial_type_set_2)
+fit.anova.trial_type_count_2 <- Anova(fit.trial_type_count_2, type = 3)
+
+fit.compare.trial_type_count_2 <- anova(fit.trial_type_count_2, fit.base_count_2, type = 3)
+
+# significant difference between DR and NDR, and between NDR and small. only difference between NDR and small is significant after Bonferroni correction. 
+fit.contr.trial_type_count_2 <- summary(fit.trial_type_count_2 %>% 
+                                    emmeans(specs = pairwise ~ trial_type,
+                                            adjust = "bonferroni") %>% 
+                                    pluck("contrasts"))
+```
+
+In addition to simply asking whether children chose the correct set as the basis for inferring the number of hidden bunnies, we also analyzed performance based on whether participants both inferred the correct set and counted it correctly. We  constructed  another  set  of GLMMs to predict this behavior, using the same fixed effects structure as above. All models included by-subject random intercepts, but we omitted preregistered by-item random intercepts due to overfitting.
+
+The model that best explained the data included both Age and Trial Type as predictors (compared against base model with only Age: `r print_model_comp(fit.compare.trial_type_count_2, "fit.trial_type_count_2")`). Older children were significantly better at providing the correct number of animals (`r print_coeff(fit.trial_type_count_2, "age_zscored")`). Children’s performance was also influenced by Trial Type (`r print_model_comp(fit.anova.trial_type_count_2, "trial_type")`), and *post hoc* pairwise comparisons with Bonferroni correction showed the same pattern of success across trial types as the above analysis. CP knowers were more successful in Small trials compared to Large-DR trials ($z$ = `r fit.contr.trial_type_count_2 %>% filter(contrast == "small - (large-DR)") %>% pull(z.ratio) %>% force_decimals()`, `r fit.contr.trial_type_count_2 %>% filter(contrast == "small - (large-DR)") %>% pull(p.value) %>% format_p()`) and Large-NR trials ($z$ = `r fit.contr.trial_type_count_2 %>% filter(contrast == "small - (large-NR)") %>% pull(z.ratio) %>% force_decimals()`, `r fit.contr.trial_type_count_2 %>% filter(contrast == "small - (large-NR)") %>% pull(p.value) %>% format_p()`), and success in Large-DR trials was also significantly more likely than in Large-NR trials ($z$ = `r fit.contr.trial_type_count_2 %>% filter(contrast == "(large-DR) - (large-NR)") %>% pull(z.ratio) %>% force_decimals()`, `r fit.contr.trial_type_count_2 %>% filter(contrast == "(large-DR) - (large-NR)") %>% pull(p.value) %>% format_p()`).
+
+# General Discussion & Future Directions
+
+We investigated the role that counting knowledge plays in children’s understanding of exact equality, and in particular that sets in 1-to-1 correspondence should be given the same numerical label. We found three main results. First, compatible with some previous studies, Study 1 found that CP knowers were more likely than subset knowers to infer that two sets should receive the same number label only if they are numerically equal. In fact, subset knowers performed at chance on this task for both small and large sets. This provides evidence against the hypothesis that exact number meaning develops even before children learn the CP. Second, Study 1 found that although many CP knowers made this inference, many also failed, suggesting that this understanding is not the product of acquiring the CP. Third, Study 2 found that although CP knowers succeeded at cardinal extension for small sets within the subitizable range and large sets with perceptually discriminable ratios, they failed to use 1-to-1 correspondence as a cue to exact equality. This suggests that CP knowers’ initial understanding of cardinal extension is driven by sensitivity to approximate quantities, not 1-to-1 correspondence. 
+
+These results call into question the hypothesis that understanding exact number meaning occurs when the CP is acquired through a bootstrapping process where children notice an analogical mapping between counting up the count list and adding one item to a set [@carey2004; @carey2009]. Therefore, learning the CP supports the inference that only sets in one-to-one correspondence are equinumerous and can be denoted by the same number word [@lecorre2007]. Yet our data showed that children who know the CP performed at chance for perceptually non-discriminable ratios that are differentiated by violations of 1-to-1 correspondence. This suggests that understanding of how number words encode exact equality continues to develop well after children master the counting procedures required to become a CP-knower.
+
+While our results are broadly consistent with some previous findings, we also introduce several new findings to the literature, which may at first appear to conflict with some past studies. For example, our finding that CP knowers extend cardinal labels to two sets even if they violate one-to-one correspondence seems, at first, to be at odds with previous studies that document an ability among CP knowers to judge that sets that differ by just 1 item should be labeled by different number words [@sarnecka2004; @sarnecka2013]. However, like our study, these previous studies also found variability in CP knowers’ performance, suggesting that many CP knowers fail to recognize that equinumerous sets should receive the same label. Also, it’s unclear from past studies whether these children who used different labels for sets with off-by-one difference were sensitive to exact equality, or were using a pragmatic principle of contrast such as "different referents get different labels" [see @brooks2013].
+
+One question that arises from our results is why CP knowers succeed at constructing large sets that are off-by-one (e.g., ‘five’ and ‘six’ fish in the Give-N task), yet failed to understand that two sets have a different number of items if they do not exhibit 1-to-1 correspondence. One possibility, proposed by @davidson2012, is that CP knowers have acquired the ability to construct large sets as a rote procedure and therefore lack adult-like understanding of number words. For example, when asked to ‘give six fish,’ these CP knowers might follow a procedure in this form: ‘Begin counting from one, for each number word partition one item to a separate set, stop counting at six, and give all counted objects.’ This procedure results in an accurate set of six, but requires minimal conceptual understanding of the meaning of ‘six’ – for example, that ‘six’ denotes the same cardinality across any set constructed following the procedure, or that ‘six’ denotes ‘exactly six.’ Lacking this understanding, these CP knowers might not realize that, if two sets stand in 1-to-1 correspondence, then counting one set indicates the cardinality of the second one. Another possibility, proposed by @schneider2022, is that children might know that two sets are equal only if they stand in 1-to-1 correspondence but lack a reliable procedure for verifying this property for large sets. @schneider2022 argued that counting provides a procedure that establishes 1-to-1 correspondence in a memory-free manner: as each item is counted, it is tagged with a number word and removed from further consideration (e.g., by setting it aside). Perhaps when children understand this 1-to-1 verification procedure, they extend the ability to sequentially map labels-to-objects to the problem of mapping objects-to-objects in sequence, a skill required for verifying 1-to-1 correspondence in large sets.
+
+Regardless of why some CP knowers fail at cardinal extension, it seems likely experience with counting plays a role in overcoming these challenges. Perhaps as children gain more counting experience, they come to realize that violations of 1-to-1 between count words and items results in different numerical labels. More exposure to counting might also lead children to notice that adding or removing an item from a set results in a different cardinality. Further research is needed to investigate whether variability in cardinal extension performance among CP knowers might be explained by differing understanding of the counting procedures and its conceptual principles.
+
+<!-- Another possibility is that some CP knowers might not understand that 1-to-1 correspondence between two sets entails that they are therefore exactly equal. We note that these are potentially two different cognitive processes, and that it is an open question whether understanding that number words denote exact quantities across non-identical sets entails understanding of exact equality between sets exhibiting 1-to-1 correspondence, vice versa, or whether these two abilities are orthogonal [see @schneider2022 for a discussion]. -->
+<!-- No previous studies have successfully differentiated these two ideas, and therefore, further research is necessary to investigate their relationship and whether one entails, or predicts, the other. -->
+
+<!-- Finally, our studies found that different factors predicted children’s success in choosing the correct item set whose cardinality matched that of the hidden animals vs. actually generating the correct animal count after selecting the right item set. For example, both studies showed that older CP knowers were better than younger CP knowers at inferring the correct number of animals, but age was not a significant predictor for CP knowers’ success in choosing the correct item set. This suggests that there might be multiple cognitive processes involved in reasoning about cardinal extension. Accurately counting a large set might be a difficult procedure, and requiring children to count in tasks that test knowledge of exact set equality and exact number meaning might underestimate their conceptual understanding.  -->
+
+<!-- In sum, our results provided evidence for the hypothesis that children develop exact number knowledge and reason about exact set equality in a protracted trajectory that extends after they learn the CP. Additionally, we found that CP knowers initially reason about set equality by approximate magnitudes rather than 1-to-1 correspondence. Our findings raise questions for future research regarding when children develop understanding of exact number and exact set equality, and to what extent 1-to-1 correspondence is invoked in the process. -->
+
+# Acknowledgements
+
+This research was funded by a National Science Foundation award (#2000827) to DB. We thank the participants, their parents, preschool teachers and directors, and the Fleet Science Center in San Diego, and also thank Elizabeth Hernandez and Urvi Maheshwari for assistance with data collection. We are grateful for the feedback from Rose M. Schneider and the members of the Language and Development Lab at UC San Diego. 
+
+# References
+
+```{r}
+# References will be generated automatically by Pandoc and included here.
+# The following code is some latex to format the bibliography. Do not remove it.
+```
+
+```{=tex}
+\setlength{\parindent}{-0.1in} 
+\setlength{\leftskip}{0.125in}
+```
+\noindent
