@@ -345,15 +345,6 @@ t_subset_set_trials_within_kl_1 <- t.test(df.trial_1 %>%
            summarise(mean_correct_set = mean(correct_set_chosen)) %>% 
          pull(mean_correct_set),
        mu = 0.5)
-
-t_subset_set_trials_within_kl_1 <- t.test(df.trial_1 %>% 
-                       mutate(set_smaller = substr(trial_ratio, 1, 1)) %>%
-                       filter(knower_level_cp_subset == "subset") %>%
-                       filter(knower_level >= set_smaller) %>%
-           group_by(id) %>%
-           summarise(mean_correct_set = mean(correct_set_chosen)) %>% 
-         pull(mean_correct_set),
-       mu = 0.5)
 ```
 
 ```{r study1 set choice - CP-subset comparison}
@@ -492,15 +483,6 @@ t_subset_count_trials_within_kl_1 <- t.test(df.trial_1 %>%
                        mutate(set_larger = substr(trial_ratio, 3, 3)) %>%
                        filter(knower_level_cp_subset == "subset") %>%
                        filter(knower_level >= set_larger) %>%
-           group_by(id) %>%
-           summarise(mean_correct_count = mean(correct_count_when_correct_set_chosen)) %>% 
-         pull(mean_correct_count),
-       mu = 0.5)
-
-t_subset_count_trials_within_kl_1 <- t.test(df.trial_1 %>% 
-                       mutate(set_smaller = substr(trial_ratio, 1, 1)) %>%
-                       filter(knower_level_cp_subset == "subset") %>%
-                       filter(knower_level >= set_smaller) %>%
            group_by(id) %>%
            summarise(mean_correct_count = mean(correct_count_when_correct_set_chosen)) %>% 
          pull(mean_correct_count),
@@ -1066,22 +1048,30 @@ df.summary_correct_set_chosen_2 <- df.trial_2 %>%
 
 ```{r study2 - t-tests}
 t_all_2 <- t.test(df.trial_2 %>% 
-                    pull(correct_set_chosen), 
+                    group_by(id) %>%
+                    summarise(mean_correct_set = mean(correct_set_chosen)) %>%
+                    pull(mean_correct_set), 
                   mu = 0.5)
 
 t_small_2 <- t.test(df.trial_2 %>% 
          filter(trial_type == "small") %>% 
-         pull(correct_set_chosen), 
+                    group_by(id) %>%
+                    summarise(mean_correct_set = mean(correct_set_chosen)) %>%
+                    pull(mean_correct_set), 
        mu = 0.5)
 
 t_largedr_2 <- t.test(df.trial_2 %>% 
          filter(trial_type == "large-DR") %>% 
-         pull(correct_set_chosen), 
+                    group_by(id) %>%
+                    summarise(mean_correct_set = mean(correct_set_chosen)) %>%
+                    pull(mean_correct_set), 
        mu = 0.5)
 
 t_largenr_2 <- t.test(df.trial_2 %>% 
          filter(trial_type == "large-NR") %>% 
-         pull(correct_set_chosen), 
+                    group_by(id) %>%
+                    summarise(mean_correct_set = mean(correct_set_chosen)) %>%
+                    pull(mean_correct_set), 
        mu = 0.5)
 ```
 
