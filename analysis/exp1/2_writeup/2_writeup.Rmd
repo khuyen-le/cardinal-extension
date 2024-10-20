@@ -19,14 +19,16 @@ affiliation:
 
 authornote: |
   Part of these findings were presented as a poster at the 2024 Cognitive Development Society Biennial Meeting, and have been accepted as a talk at the 2024 Cognitive Science Society Meeting. The authors have no conflicts of interest to disclose. All materials, data, and analysis scripts are available at https://osf.io/eswa4. This research was funded by a National Science Foundation award (#2000827) to DB.
-  
+
 abstract: |
-  Numerate adults know that when two sets are equal they should be labeled by the same number word. We explored the development of this principle - sometimes called "cardinal extension" - and how it relates to children’s other numerical abilities. Experiment 1 revealed that 2- to 5-year-old children who could accurately count large sets often inferred that two equal sets should be labeled with the same number word, unlike children who could not accurately count large sets. However, not all counters made this inference, suggesting that learning to construct and label large sets may be a necessary but not sufficient step in learning how numbers represent exact quantities. Experiment 2 found that children who extended labels to equal sets were not actually sensitive to exact equality, and that they also assigned two sets the same label when they were approximately equal, but differed by just 1 item (violating one-to-one correspondence). These results suggest a gradual, stage-like, process in which children learn to accurately count, learn to extend labels to perceptually similar sets, and then eventually restrict cardinal extension to sets that are exactly equal. 
+  Numerate adults know that when two sets are equal they should be labeled by the same number word. We explored the development of this principle - sometimes called "cardinal extension" - and how it relates to children’s other numerical abilities. Experiment 1 revealed that 2- to 5-year-old children who could accurately count large sets often inferred that two equal sets should be labeled with the same number word, unlike children who could not accurately count large sets. However, not all counters made this inference, suggesting that learning to construct and label large sets may be a necessary but not sufficient step in learning how numbers represent exact quantities. Experiment 2 found that children who extended labels to equal sets were not actually sensitive to exact equality, and that they often assigned two sets the same label when they were approximately equal, but differed by just 1 item (violating one-to-one correspondence). These results suggest a gradual, stage-like, process in which children learn to accurately count, learn to extend labels to perceptually similar sets, and then eventually restrict cardinal extension to sets that are exactly equal. 
   
   Public significance statement: This study suggests that learning to count and construct sets of large quantities may be a necessary but not sufficient step in learning how numbers represent exact quantities. While children who can accurately construct large sets show greater understanding that only sets of the same quantity can be labeled by the same number word, they also often assign the same number word to sets that are approximately equal.
   
+  <!-- https://tinyurl.com/ybremelq -->
+  
 keywords          : "number words, number concepts, exact equality, cardinal extension, language development, preschool children"
-wordcount         : "12605"
+wordcount         : "12904"
 
 bibliography      : "library.bib"
 
@@ -537,7 +539,6 @@ t_count_trials_within_kl_1 <- t.test(df.trial_1 %>%
            group_by(id) %>%
            summarise(mean_correct_count = mean(correct_count_when_correct_set_chosen)) %>% 
          pull(mean_correct_count)) 
-
 t_count_trials_within_kl_1 <- t.test(df.trial_1 %>%
                       filter(knower_level_cp_subset == "CP") %>%
            group_by(id) %>%

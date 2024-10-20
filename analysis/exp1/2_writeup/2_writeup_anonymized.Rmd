@@ -539,7 +539,6 @@ t_count_trials_within_kl_1 <- t.test(df.trial_1 %>%
            group_by(id) %>%
            summarise(mean_correct_count = mean(correct_count_when_correct_set_chosen)) %>% 
          pull(mean_correct_count)) 
-
 t_count_trials_within_kl_1 <- t.test(df.trial_1 %>%
                       filter(knower_level_cp_subset == "CP") %>%
            group_by(id) %>%
