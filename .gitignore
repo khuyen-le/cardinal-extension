@@ -9,5 +9,6 @@ slides/*
 submissions/*
 **/2_writeup/*.tex
 **/2_writeup/*.log
+**/2_writeup/*.gz
 *_files
 *RAW_DATA*
