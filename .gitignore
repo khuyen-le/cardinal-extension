@@ -10,5 +10,5 @@ submissions/*
 */2_writeup/*.tex
 */2_writeup/*.log
 *_files
-*/RAW_DATA/*
-ubmissions/*
+*RAW_DATA*
+submissions/*
