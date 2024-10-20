@@ -7,8 +7,7 @@ slides/*
 .Rproj.user
 .Rhistory
 submissions/*
-*/2_writeup/*.tex
-*/2_writeup/*.log
+**/2_writeup/*.tex
+**/2_writeup/*.log
 *_files
 *RAW_DATA*
-submissions/*
