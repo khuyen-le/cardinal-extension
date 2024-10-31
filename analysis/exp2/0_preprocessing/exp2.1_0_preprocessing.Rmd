@@ -13,78 +13,58 @@ library('lubridate')
 ```
 
 ```{r get data}
-df.load_raw_exp2 <- read.csv('../../../data/exp2/RAW_DATA/exp2_data.csv')
+df.load_raw_exp2 <- read.csv('../../../data/exp2/RAW_DATA/exp2.1_data.csv')
 
 df.stim <- read.csv('../../../data/exp2/RAW_DATA/stim.csv')
 ```
 
-```{r combine data}
-df.raw_exp2 <- df.load_raw_exp2 %>% 
-  left_join(df.stim, by = c("stim_set", "trial")) 
-```
-
 
 ```{r create participant files}
-df.raw_exp2 <- df.raw_exp2 %>%
+df.raw_exp2 <- df.load_raw_exp2 %>%
   group_by(pid) %>%
   mutate(id = UUIDgenerate()) %>%
   ungroup() %>%
   select(id, dot, dob, gender, primary_lang, is_bilingual,
-         stim_set, highest_count,
-         trial, trial_type, magnitude, ratio, 
-         set_chosen, count, correction_after_prompt,
-         precounted, n_item1, n_item2, loc_item1, exclude) %>%
+         trial, trial_ratio,
+         set_chosen, correct_set_chosen, count, correct_count, 
+         remember_missing_item, notes, already_tested) %>%
   mutate(age_months = interval(mdy(dob), mdy(dot)) %/% months(1), 
          age_years = interval(mdy(dob), mdy(dot)) %/% years(1),
          age_years_cont = interval(mdy(dob), mdy(dot)) %/% days(1) / 365, 
-         age_zscored = (age_years_cont - mean(age_years_cont)) / sd(age_years_cont)) %>%
-  mutate(final_count = ifelse(!is.na(correction_after_prompt), correction_after_prompt, count))
+         age_zscored = (age_years_cont - mean(age_years_cont)) / sd(age_years_cont))
 
 df.ppt <- df.raw_exp2 %>% 
   group_by(id, age_months, age_years, age_years_cont, age_zscored, 
-           gender, primary_lang, is_bilingual, stim_set, highest_count) %>%
+           gender, primary_lang, is_bilingual) %>%
   summarise()
 
-write.csv(df.ppt, "../../../data/exp2/PROCESSED_DATA/exp2_ppt.csv", row.names = FALSE)
+write.csv(df.ppt, "../../../data/exp2/PROCESSED_DATA/exp2.1_ppt.csv", row.names = FALSE)
 ```
 
 ```{r crete trial files}
 df.trial <- df.raw_exp2 %>% 
   select(id, age_months, age_years, age_years_cont, age_zscored,
-         stim_set, highest_count,
-         trial, trial_type, ratio, magnitude, 
-         set_chosen, count, correction_after_prompt, final_count,
-         precounted, n_item1, n_item2, loc_item1, exclude) %>%
+        trial, trial_ratio,
+         set_chosen, count, correct_set_chosen, correct_count, 
+         remember_missing_item, notes, already_tested) %>%
   mutate(count = as.numeric(count)) %>%
   rowwise() %>%
-  mutate(trial_ratio = paste(sort(c(n_item1, n_item2)), collapse = "-")) %>%
-  mutate(precounted = ifelse(precounted == "", NA, precounted), 
-         
+  mutate(
+    remember_missing_item = ifelse(remember_missing_item == "Y", 1, 0), 
     target_count = case_when( #target count is always the larger number
-           n_item1 > n_item2 ~ n_item1, 
-           n_item2 > n_item1 ~ n_item2, 
+           trial_ratio == "10-11" ~ 11, 
+           trial_ratio == "9-10" ~ 10, 
+           trial_ratio == "11-12" ~ 12,
          ), 
-    
-         target_set = case_when(
-           target_count == n_item1 ~ loc_item1, 
-           target_count == n_item2 & loc_item1 == "bottom" ~ "top", 
-           target_count == n_item2 & loc_item1 == "top" ~ "bottom"
-         ),
-      strict_correct_set_chosen = case_when(
-           target_set == set_chosen  ~ 1,
-           target_set != set_chosen ~ 0, 
-           is.na(set_chosen) ~ 0,
-         ),
-         
+    final_count = count,
          correct_count = case_when(
            is.na(final_count) ~ 0,
            final_count == target_count ~ 1, 
            final_count != target_count ~ 0
          ), 
         correct_set_chosen = case_when(
-           correct_count == 1 & is.na(set_chosen) ~ 1, # correct count without selecting a set is considered 'correct set chosen'
-           target_set == set_chosen  ~ 1,
-           target_set != set_chosen ~ 0, 
+           correct_count == 1 & set_chosen == "none" ~ 1, # correct count without selecting a set is considered 'correct set chosen'
+           set_chosen == "correct"  ~ 1,
            .default = 0 
          ),
          # correct_set_chosen_or_correct_count = ifelse(
@@ -96,6 +76,10 @@ df.trial <- df.raw_exp2 %>%
          count_error = case_when(
            !is.na(final_count) ~ final_count - target_count
          ), 
+    strict_correct_set_chosen = case_when(
+            set_chosen == "correct"  ~ 1,
+           .default = 0 
+         ),
          correct_count_approx = case_when(
            is.na(final_count) ~ 0, 
            count_error >= -1 & count_error <= 1 ~ 1, 
@@ -105,7 +89,7 @@ df.trial <- df.raw_exp2 %>%
            correct_count_approx == 1 & correct_set_chosen == 1, 1, 0
          ),) 
 
-write.csv(df.trial, "../../../data/exp2/PROCESSED_DATA/exp2_trial.csv", row.names = FALSE)
+write.csv(df.trial, "../../../data/exp2/PROCESSED_DATA/exp2.1_trial.csv", row.names = FALSE)
 ```
 
 

@@ -23,9 +23,6 @@ library('pbkrtest')
 library('chisq.posthoc.test')
 
 library('cowplot')
-
-library('VennDiagram')
-
 theme_set(theme_classic())
 
 cbPalette <- c("#E69F00", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#56B4E9", "#CC79A7", "#000000")
