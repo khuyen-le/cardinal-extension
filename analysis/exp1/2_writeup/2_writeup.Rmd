@@ -160,7 +160,7 @@ To summarize, previous studies have debated when and how children acquire the tw
 
 Crucially, most studies that attempt to test both children’s reasoning about equinumerosity and how they use this knowledge to extend number labels [e.g., @sarnecka2004] do not differentiate between reasoning about exact vs. approximate representations of number^[One study, @sophian1995, did include trials that could differentiate between an exact equality vs. approximate quantity strategy, but did not report separate trial performance.]. This is important, because children might represent two sets as "the same" using approximate representations of number, even if the sets violate one-to-one correspondence and differ by 1 item^[As already noted, one exception to this is @sarnecka2004, which found that subset-knowers who extend number words to two equal sets subsequently refuse to do so after an object is added to one of them. However, in addition to conflicting with results from other tasks, this study did not test whether children’s change in judgment was due to a violation of one-to-one, or the more general pragmatic heuristics that “a change in number should reflect a change in number word”, which is neutral with respect to whether - and how - children represent the sets as equal [@brooks2013].]. A large literature indicates that human perception of large sets is supported by representations in the Approximate Number System [ANS, @cordes2001; @dehaene1997; @dehaene2009; @whalen1999; @feigenson2004] such that sets that differ by large ratios - e.g., 2:1, 2:3 - are easy to discriminate, while sets with smaller ratios often are not. Although the acuity of this system improves with age [@halberda2008; @huntleyfenner2000], even adults often fail to reliably discriminate large sets that have a ratio less than 7:8. Meanwhile, accurate and adult-like set comparison for sets beyond the subitizable range with perceptually non-discriminable ratios requires precise representations of numerosities [see @feigenson2004 for a discussion]. Consequently, in order to be sure that children extend number words to sets that are exactly equal, it’s critical to ensure that their extension is not based on approximate matches between sets. While some studies have attempted to do this by showing children two equal sets and then adding or subtracting 1 item from one set [e.g., @sarnecka2004], in such studies children might assume that any change in number requires a change in label without knowing how to assess equality, and also without thinking that this principle of contrast is specific to number [see, e.g., @brooks2013, for evidence that children make identical patterns of inference for changes in an object’s part-whole structure]. 
 
-The present studies aimed to address the limitations of past reports. Adapting the animal-bicycle task from @muldoon2005 in Experiment 1, we presented subset-knowers and CP-knowers with two sets of animals in unequal numbers - 5 bunnies and 7 lions. Animals in each group carried items (e.g., the bunnies had blue hats and the lions had red hats), such that the number of items was exactly equal to the number of animals in each group. The animal sets were then hidden, and children were prompted to infer the number of one of the two hidden animal sets (e.g., the number of bunnies). We reasoned that if children believe that two equal sets  deserve the same numerical label, they should count the correct visible objects to infer the number of hidden objects (e.g., counting the bunnies’ hats to infer the number of bunnies), whereas if they do not understand this they should count the set corresponding to the second set of animals. In Experiment 2, we probed the nature of the numerical representations used by children who appeared to succeed at cardinal extension, by asking whether they reasoned about exact equality or approximate magnitudes. Finally, while the main focus of these studies was to explore differences in performance between CP- and subset-knowers and the representations children use (e.g., one-to-one correspondence vs. approximation), we also asked asked whether performance was related to individual differences in rote counting ability, which previous studies find is related to both early number knowledge [@chu2020; @schneider2021] and later mathematics achievement [@aunola2004; @koponen2016; @zhang2014].
+The present studies aimed to address the limitations of past reports. Adapting the animal-bicycle task from @muldoon2005 in Experiment 1, we presented subset-knowers and CP-knowers with two sets of animals in unequal numbers - 5 bunnies and 7 lions. Animals in each group carried items (e.g., the bunnies had blue hats and the lions had red hats), such that the number of items was exactly equal to the number of animals in each group. The animal sets were then hidden, and children were prompted to infer the number of one of the two hidden animal sets (e.g., the number of bunnies). We reasoned that if children believe that two equal sets  deserve the same numerical label, they should count the correct visible objects to infer the number of hidden objects (e.g., counting the bunnies’ hats to infer the number of bunnies), whereas if they do not understand this they should count the set corresponding to the second set of animals. In Experiment 2, we probed the nature of the numerical representations used by children who appeared to succeed at cardinal extension, by asking whether they reasoned about exact equality or approximate magnitudes. Finally, while the main focus of these studies was to explore differences in performance between CP- and subset-knowers and the representations children use (e.g., one-to-one correspondence vs. approximation), we also asked whether performance was related to individual differences in rote counting ability, which previous studies find is related to both early number knowledge [@chu2020; @schneider2021] and later mathematics achievement [@aunola2004; @koponen2016; @zhang2014].
 
 ```{r get data}
 df.ppt_raw_1 <- read.csv('../../../data/exp1/PROCESSED_DATA/exp1_ppt.csv')
@@ -678,17 +678,19 @@ df.summary_1 <- df.trial_1 %>%
 
 plot_summary_set_1 <- ggplot(df.summary_1,
        aes(x = mean_correct_set_chosen,
-           fill = knower_level_cp_subset)) +
-  geom_bar(
-    position = position_dodge2(width = 1, preserve = "single"), 
-    aes(y = ..count..)) + 
-  scale_fill_manual(values=cbPalette) + 
+           color = knower_level_cp_subset)) +
+  geom_line(stat = 'count') + 
+  geom_point(stat = 'count') +
+  # geom_bar(
+  #   position = position_dodge2(width = 1, preserve = "single"), 
+  #   aes(y = ..count..)) + 
+  scale_color_manual(values=cbPalette) + 
   scale_x_continuous(breaks = seq(0, 1, 0.1)) +
   ylim(0, 30) +
   theme(text = element_text(size = 11)) + 
   labs(y = "Number of participants", 
        x = "Prop. of correct set choice", 
-       fill = "Knower Level")
+       color = "Knower Level")
 
 legend <- get_legend(
   # create some space to the left of the legend
@@ -697,16 +699,18 @@ legend <- get_legend(
 
 plot_summary_count_1 <- ggplot(df.summary_1,
        aes(x = mean_correct_count_when_correct_set_chosen,
-           fill = knower_level_cp_subset)) +
-  geom_bar(position = position_dodge2(width = 1, preserve = "single"), 
-           aes(y = ..count..)) + 
-  scale_fill_manual(values=cbPalette) + 
+           color = knower_level_cp_subset)) +
+  geom_line(stat = 'count') + 
+  geom_point(stat = 'count') +
+  # geom_bar(position = position_dodge2(width = 1, preserve = "single"), 
+  #          aes(y = ..count..)) + 
+  scale_color_manual(values=cbPalette) + 
   scale_x_continuous(breaks = seq(0, 1, 0.1)) +
   ylim(0, 30) +
   theme(text = element_text(size = 11)) + 
   labs(y = "Number of participants", 
        x = "Prop. of correct numerical response", 
-       fill = "Knower Level")
+       color = "Knower Level")
 
 combined_plot <- plot_grid(
   plot_summary_set_1 + theme(legend.position = "none"),
@@ -736,6 +740,7 @@ fit.base_set_cp_1 <- glmer(correct_set_chosen ~ magnitude + age_zscored + (1|id)
                      data = df.trial_1 %>% filter(knower_level_cp_subset == "CP"), 
                      family="binomial")
 summary(fit.base_set_cp_1)
+
 fit.anova.base_set_cp_1 <- Anova(fit.base_set_cp_1, type = 3)
 
 fit.base_set_subset_1 <- glmer(correct_set_chosen ~ magnitude + age_zscored + (1|id)
@@ -908,6 +913,98 @@ df.hc_summary_1 <- df.trial_1 %>%
             sd_hc = sd(highest_count), 
             min_hc = min(highest_count), 
             max_hc = max(highest_count))
+```
+
+```{r study1 - highest count variability plot, fig.cap = "Histogram of participants' Highest Count by Knower Level.", fig.height = 4, include = T}
+ggplot(df.ppt_1 %>%
+         filter(!is.na(highest_count)) %>% 
+         mutate(knower_level_cp_subset = factor(knower_level_cp_subset, levels = c("subset", "CP"))), 
+       aes(x = highest_count, fill = knower_level_cp_subset, 
+           color = knower_level_cp_subset)) + 
+  geom_histogram(position = 'identity', 
+                 alpha = 0.5, 
+                 binwidth = 1) + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) + 
+  scale_x_continuous(breaks = seq(0, 100, 5)) +
+  labs(y = "Number of participants", 
+       x = "Highest Count", 
+       color = "Knower Level", 
+       fill = "Knower Level")
+
+ggplot(df.trial_1 %>%
+         filter(!is.na(highest_count)) %>%
+         group_by(id, knower_level_cp_subset, highest_count) %>%
+         summarise(sum_correct_set_chosen = sum(correct_set_chosen)), 
+       aes(x = sum_correct_set_chosen, 
+           y = highest_count, 
+           color = knower_level_cp_subset)) +
+  stat_summary(fun.y = "mean",
+               geom = "line") +
+  stat_summary(fun.data = "mean_cl_boot",
+               geom = "pointrange") +
+  geom_jitter(height = 0,
+              alpha = 0.3,
+              aes(group = id)) +
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) + 
+    scale_x_continuous(breaks = seq(0, 6, 1)) +
+  ylim(0, 100) +
+  labs(y = "Average Highest Count", 
+       x = "Number of trials with Correct Set Choice (out of 6)", 
+       color = "Knower Level")
+
+ggplot(df.trial_1 %>%
+         filter(!is.na(highest_count)) %>%
+         group_by(id, knower_level_cp_subset, highest_count) %>%
+         summarise(sum_correct_set_chosen = sum(correct_set_chosen)), 
+       aes(x = sum_correct_set_chosen, 
+           y = highest_count, 
+           fill = knower_level_cp_subset)) +
+  stat_summary(fun.y = "mean",
+               geom = "col", 
+               position = position_dodge2(width = 0.9, preserve = "single")) +
+    stat_summary(aes(label= apa_num(round(..y..,2))),
+               fun.y=mean, geom="text",
+               size=3.5,
+             vjust = -0.5,
+             show.legend = F,
+              position = position_dodge2(width = 1)) +
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) + 
+    scale_x_continuous(breaks = seq(0, 6, 1)) +
+  coord_cartesian(ylim=c(0,40)) +
+  labs(y = "Average Highest Count", 
+       x = "Number of trials with Correct Set Choice (out of 6)", 
+       fill = "Knower Level")
+```
+
+```{r exp1 supplemental, fig.width = 8, fig.height = 12}
+ggplot(df.trial_1 %>%
+         filter(!is.na(highest_count)) %>%
+         group_by(id, knower_level_cp_subset, highest_count) %>%
+         summarise(sum_correct_set_chosen = sum(correct_set_chosen)), 
+       aes(x = highest_count, 
+           fill = knower_level_cp_subset, 
+           color = knower_level_cp_subset)) +
+   geom_histogram(position = 'identity', 
+                 alpha = 0.2, 
+                 binwidth = 1) + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) + 
+  facet_wrap(~sum_correct_set_chosen, 
+             ncol = 2,
+             scales = 'free') +
+  scale_y_continuous(breaks = seq(0, 11, 1), 
+                     limits = c(0, 11)) +
+  scale_x_continuous(breaks = seq(0, 100, 10),
+                     limits = c(0, 100)) +
+   labs(y = "Number of participants", 
+       x = "Highest Count", 
+       color = "Knower Level", 
+       fill = "Knower Level") + 
+   theme(text = element_text(size = 13)) + 
+  theme(legend.position = 'bottom')
 ```
 
 ```{r study1 - regressions - highest count with set}
@@ -1145,7 +1242,102 @@ combined_plot <- plot_grid(plot3, plot4, labels = c('A', 'B'))
 plot_grid(combined_plot, ncol=1,rel_heights = c(1, .1))
 ```
 
-```{r exp2-plot-var, fig.cap = "Variability in Experiment 2. All trials: A) Number of participants against proportion of correct item set choice. B) Number of participants against proportion of correct numerical response. By trial type: C) Number of participants against proportion of correct item set choice. D) Number of participants against proportion of correct numerical response.", fig.height = 7, include = T}
+```{r exp2-plot-var, fig.cap = "Variability in Experiment 2. All trials: A) Number of participants against proportion of correct item set choice. B) Number of participants against proportion of correct numerical response. By trial type: C) Number of participants against proportion of correct item set choice. D) Number of participants against proportion of correct numerical response.", fig.height = 6, include = T}
+df.summary_2 <- df.trial_2 %>%
+  group_by(id) %>%
+  summarise(mean_correct_set_chosen = mean(correct_set_chosen),
+            mean_correct_count_when_correct_set_chosen = mean(correct_count_when_correct_set_chosen))
+
+plot_summary_set_2 <- ggplot(df.summary_2,
+       aes(x = mean_correct_set_chosen)) +
+  geom_line(stat = 'count') + 
+  geom_point(stat = 'count') +
+  # geom_bar(
+  #          aes(y = ..count..)) + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_x_continuous(breaks = seq(0, 1, 0.1)) +
+  ylim(0, 20) +
+  theme(text = element_text(size = 11)) + 
+  labs(y = "Number of participants", 
+       x = "Prop. of correct set choice")
+
+plot_summary_count_2 <- ggplot(df.summary_2,
+       aes(x = mean_correct_count_when_correct_set_chosen)) +
+  geom_line(stat = 'count') + 
+  geom_point(stat = 'count') +
+  # geom_bar(aes(y = ..count..)) + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_x_continuous(breaks = seq(0, 1, 0.1)) +
+  ylim(0, 20) +
+  theme(text = element_text(size = 11)) + 
+  labs(y = "Number of participants", 
+       x = "Prop. of correct numerical response")
+
+df.summary_trial_type_2 <- df.trial_2 %>%
+  group_by(trial_type, id) %>%
+  summarise(mean_correct_set_chosen = mean(correct_set_chosen),
+            mean_correct_count_when_correct_set_chosen = mean(correct_count_when_correct_set_chosen))
+
+plot_summary_set_trial_type_2 <- ggplot(data = 
+                                            df.summary_trial_type_2 %>% 
+                                            ungroup() %>%
+         mutate(trial_type = factor(trial_type, labels = c("small sets (e.g., 1:2)", "large sets, discriminable ratio (e.g., 5:10)", "large sets, off-by-one (e.g., 9:10)"))),
+       aes(x = mean_correct_set_chosen,
+           color = trial_type)) +
+  geom_line(stat = 'count') + 
+  geom_point(stat = 'count') +
+  # geom_bar(position = position_dodge2(width = 1, preserve = "single"), 
+  #          aes(y = ..count..)) + 
+  scale_color_manual(values=cbPalette) + 
+  scale_x_continuous(breaks = seq(0, 1, 0.1)) +
+  ylim(0, 60) +
+  theme(#plot.margin = margin(b = 0), 
+    text = element_text(size = 11)) + 
+  labs(y = "Number of participants", 
+       x = "Prop. of correct set choice",
+       color = "Set Size and Ratio")
+
+legend <- get_legend(
+  # create some space to the left of the legend
+  plot_summary_set_trial_type_2 + 
+    guides(color = guide_legend(nrow = 1)) 
+)
+
+plot_summary_count_trial_type_2 <- ggplot(data = 
+                                            df.summary_trial_type_2 %>% 
+                                            ungroup() %>%
+         mutate(trial_type = factor(trial_type, labels = c("small sets (e.g., 1:2)", "large sets, discriminable ratio (e.g., 5:10)", "large sets, off-by-one (e.g., 9:10)"))),
+       aes(x = mean_correct_count_when_correct_set_chosen, 
+           color = trial_type)) +
+  geom_line(stat = 'count') + 
+  geom_point(stat = 'count') +
+  # geom_bar(position = position_dodge2(width = 1, preserve = "single"), 
+  #          aes(y = ..count..)) + 
+  scale_color_manual(values=cbPalette) + 
+  scale_x_continuous(breaks = seq(0, 1, 0.1)) +
+  ylim(0, 60) +
+  theme(#plot.margin = margin(b = 0), 
+        text = element_text(size = 11)) + 
+  labs(y = "Number of participants", 
+       x = "Prop. of correct numerical response", 
+       color = "Set Size and Ratio")
+
+combined_plot <- plot_grid(
+  plot_summary_set_2 + theme(legend.position = "none"),
+  plot_summary_count_2 + theme(legend.position = "none"), 
+  plot_summary_set_trial_type_2 + theme(legend.position = "none"),
+  plot_summary_count_trial_type_2 + theme(legend.position = "none"), 
+  nrow = 2, 
+  ncol = 2,
+  labels = c("A", "B", "C", "D")
+)
+
+plot_grid(combined_plot, legend, ncol = 1, 
+          rel_heights = c(10, 2))
+```
+
+
+```{r exp2-plot-var-old, fig.cap = "Variability in Experiment 2. All trials: A) Number of participants against proportion of correct item set choice. B) Number of participants against proportion of correct numerical response. By trial type: C) Number of participants against proportion of correct item set choice. D) Number of participants against proportion of correct numerical response.", fig.height = 7, include = T}
 df.summary_2 <- df.trial_2 %>%
   group_by(id) %>%
   summarise(mean_correct_set_chosen = mean(correct_set_chosen),
@@ -1376,6 +1568,111 @@ df.hc_summary_2 <- df.trial_2 %>%
             max_hc = max(highest_count))
 ```
 
+```{r study2 - highest count variability plot, fig.cap = "Histogram of participants' Highest Count by Knower Level.", fig.height = 4, include = T}
+
+ggplot(df.trial_2 %>%
+         filter(!is.na(highest_count)) %>%
+         group_by(id, highest_count) %>%
+         summarise(sum_correct_set_chosen = sum(correct_set_chosen)), 
+       aes(x = sum_correct_set_chosen, 
+           y = highest_count)) +
+  stat_summary(fun.y = "mean",
+               geom = "line") +
+  stat_summary(fun.data = "mean_cl_boot",
+               geom = "pointrange") +
+  geom_jitter(height = 0,
+              alpha = 0.3,
+              aes(group = id)) +
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) + 
+    scale_x_continuous(breaks = seq(0, 9, 1)) +
+  ylim(0, 100) +
+  labs(y = "Average Highest Count", 
+       x = "Number of trials with Correct Set Choice (out of 9)")
+
+ggplot(df.trial_2 %>%
+         filter(!is.na(highest_count)) %>%
+         group_by(id, highest_count) %>%
+         summarise(sum_correct_set_chosen = sum(correct_set_chosen)), 
+       aes(x = sum_correct_set_chosen, 
+           y = highest_count)) +
+  stat_summary(fun.y = "mean",
+               geom = "col", 
+               position = position_dodge2(width = 0.9, preserve = "single")) +
+  stat_summary(aes(label= apa_num(round(..y..,2))),
+               fun.y=mean, geom="text",
+               size=3.5,
+             vjust = -0.5,
+             show.legend = F,
+              position = position_dodge2(width = 1)) +
+    scale_x_continuous(breaks = seq(0, 9, 1)) +
+  coord_cartesian(ylim=c(0,40)) +
+  labs(y = "Average Highest Count", 
+       x = "Number of trials with Correct Set Choice (out of 9)")
+
+```
+
+```{r study2 - highest count variability plot OLD, fig.cap = "Histogram of participants' Highest Count by Knower Level.", fig.height = 4, include = T}
+df.hc_2 <- df.ppt_2 %>%
+  filter(!is.na(highest_count)) %>% 
+  mutate(correct_nr = ifelse(id %in% ppt_correct_nr_2, "All correct", "At least 1 mistake"), 
+         correct_nr = factor(correct_nr, levels = c("At least 1 mistake", "All correct")))
+
+ggplot(df.hc_2, 
+       aes(x = highest_count, fill = correct_nr, 
+           color = correct_nr)) + 
+  geom_histogram(position = 'identity', 
+                 alpha = 0.5, 
+                 binwidth = 1) + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) + 
+  scale_x_continuous(breaks = seq(0, 100, 5)) +
+  labs(y = "Number of participants", 
+       x = "Highest Count", 
+       color = "Correct Set Choice\non off-by-one trials", 
+       fill = "Correct Set Choice\non off-by-one trials")
+
+ggplot(df.hc_2, 
+       aes(x = highest_count)) + 
+  geom_histogram(position = 'identity', 
+                 alpha = 0.5, 
+                 binwidth = 1, 
+                 fill = cbPalette[2], 
+                 color = cbPalette[2]) + 
+  #scale_fill_manual(values=cbPalette) + 
+  #scale_color_manual(values=cbPalette) + 
+  scale_x_continuous(breaks = seq(0, 100, 5)) +
+  scale_y_continuous(breaks = seq(0, 10, 2)) +
+  labs(y = "Number of participants", 
+       x = "Highest Count", 
+       color = "", 
+       fill = "")
+```
+
+```{r exp2 supplemental, fig.width = 8, fig.height = 8}
+ggplot(df.trial_2 %>%
+         filter(!is.na(highest_count)) %>%
+         group_by(id, highest_count) %>%
+         summarise(sum_correct_set_chosen = sum(correct_set_chosen)), 
+       aes(x = highest_count)) +
+   geom_histogram(position = 'identity', 
+                 binwidth = 1, 
+                 fill = cbPalette[2]) + 
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) + 
+  facet_wrap(~sum_correct_set_chosen, 
+             ncol = 3,
+             scales = 'free') +
+  scale_y_continuous(breaks = seq(0, 3, 1), 
+                     limits = c(0, 3)) +
+  scale_x_continuous(breaks = seq(0, 100, 10),
+                     limits = c(0, 100)) +
+   labs(y = "Number of participants", 
+       x = "Highest Count") + 
+   theme(text = element_text(size = 13)) 
+```
+
+
 ```{r study2 - regressions - highest count with set}
 fit.trial_type_set_2_hc_comp <- glmer(correct_set_chosen ~ trial_type + age_zscored + (1|id) + (1|trial_ratio)
                           , data = df.trial_2
@@ -1399,7 +1696,7 @@ fit.trial_type_count_2_hc_comp <- glmer(correct_count_when_correct_set_chosen ~ 
                           data = df.trial_2 %>%
                             filter(!is.na(highest_count)), family="binomial")
 
-fit.trial_type_count_2_hc <- glmer(correct_count_when_correct_set_chosen ~ highest_count + trial_type + age_zscored + (1|id) 
+fit.trial_type_count_2_hc <- glmer(correct_count_when_correct_set_chosen ~ scale(highest_count) + trial_type + age_zscored + (1|id) 
                                    #+ (1|trial_ratio)
                                    , 
                           data = df.trial_2 %>%
