@@ -59,7 +59,7 @@ header-includes:
 
 csl               : "`r system.file('rmd', 'apa7.csl', package = 'papaja')`"
 documentclass     : "apa7"
-output            : papaja::apa6_pdf
+output            : papaja::apa6_docx
 ---
 
 ```{r setup, include = FALSE}
@@ -160,7 +160,7 @@ To summarize, previous studies have debated when and how children acquire the tw
 
 Crucially, most studies that attempt to test both children’s reasoning about equinumerosity and how they use this knowledge to extend number labels [e.g., @sarnecka2004] do not differentiate between reasoning about exact vs. approximate representations of number^[One study, @sophian1995, did include trials that could differentiate between an exact equality vs. approximate quantity strategy, but did not report separate trial performance.]. This is important, because children might represent two sets as "the same" using approximate representations of number, even if the sets violate one-to-one correspondence and differ by 1 item^[As already noted, one exception to this is @sarnecka2004, which found that subset-knowers who extend number words to two equal sets subsequently refuse to do so after an object is added to one of them. However, in addition to conflicting with results from other tasks, this study did not test whether children’s change in judgment was due to a violation of one-to-one, or the more general pragmatic heuristics that “a change in number should reflect a change in number word”, which is neutral with respect to whether - and how - children represent the sets as equal [@brooks2013].]. A large literature indicates that human perception of large sets is supported by representations in the Approximate Number System [ANS, @cordes2001; @dehaene1997; @dehaene2009; @whalen1999; @feigenson2004] such that sets that differ by large ratios - e.g., 2:1, 2:3 - are easy to discriminate, while sets with smaller ratios often are not. Although the acuity of this system improves with age [@halberda2008; @huntleyfenner2000], even adults often fail to reliably discriminate large sets that have a ratio less than 7:8. Meanwhile, accurate and adult-like set comparison for sets beyond the subitizable range with perceptually non-discriminable ratios requires precise representations of numerosities [see @feigenson2004 for a discussion]. Consequently, in order to be sure that children extend number words to sets that are exactly equal, it’s critical to ensure that their extension is not based on approximate matches between sets. While some studies have attempted to do this by showing children two equal sets and then adding or subtracting 1 item from one set [e.g., @sarnecka2004], in such studies children might assume that any change in number requires a change in label without knowing how to assess equality, and also without thinking that this principle of contrast is specific to number [see, e.g., @brooks2013, for evidence that children make identical patterns of inference for changes in an object’s part-whole structure]. 
 
-The present studies aimed to address the limitations of past reports. Adapting the animal-bicycle task from @muldoon2005 in Experiment 1, we presented subset-knowers and CP-knowers with two sets of animals in unequal numbers - 5 bunnies and 7 lions. Animals in each group carried items (e.g., the bunnies had blue hats and the lions had red hats), such that the number of items was exactly equal to the number of animals in each group. The animal sets were then hidden, and children were prompted to infer the number of one of the two hidden animal sets (e.g., the number of bunnies). We reasoned that if children believe that two equal sets  deserve the same numerical label, they should count the correct visible objects to infer the number of hidden objects (e.g., counting the bunnies’ hats to infer the number of bunnies), whereas if they do not understand this they should count the set corresponding to the second set of animals. In Experiment 2, we probed the nature of the numerical representations used by children who appeared to succeed at cardinal extension, by asking whether they reasoned about exact equality or approximate magnitudes. Finally, while the main focus of these studies was to explore differences in performance between CP- and subset-knowers and the representations children use (e.g., one-to-one correspondence vs. approximation), we also asked asked whether performance was related to individual differences in rote counting ability, which previous studies find is related to both early number knowledge [@chu2020; @schneider2021] and later mathematics achievement [@aunola2004; @koponen2016; @zhang2014].
+The present studies aimed to address the limitations of past reports. Adapting the animal-bicycle task from @muldoon2005 in Experiment 1, we presented subset-knowers and CP-knowers with two sets of animals in unequal numbers - 5 bunnies and 7 lions. Animals in each group carried items (e.g., the bunnies had blue hats and the lions had red hats), such that the number of items was exactly equal to the number of animals in each group. The animal sets were then hidden, and children were prompted to infer the number of one of the two hidden animal sets (e.g., the number of bunnies). We reasoned that if children believe that two equal sets  deserve the same numerical label, they should count the correct visible objects to infer the number of hidden objects (e.g., counting the bunnies’ hats to infer the number of bunnies), whereas if they do not understand this they should count the set corresponding to the second set of animals. In Experiment 2, we probed the nature of the numerical representations used by children who appeared to succeed at cardinal extension, by asking whether they reasoned about exact equality or approximate magnitudes. Finally, while the main focus of these studies was to explore differences in performance between CP- and subset-knowers and the representations children use (e.g., one-to-one correspondence vs. approximation), we also asked whether performance was related to individual differences in rote counting ability, which previous studies find is related to both early number knowledge [@chu2020; @schneider2021] and later mathematics achievement [@aunola2004; @koponen2016; @zhang2014].
 
 ```{r get data}
 df.ppt_raw_1 <- read.csv('../../../data/exp1/PROCESSED_DATA/exp1_ppt.csv')
@@ -254,7 +254,7 @@ Participants were given a titrated Give-N task [following the procedure in @wynn
 
 Materials were prepared and presented as a slidedeck with recorded audio descriptions. Participants were first introduced to the animals used in the task (lions and bunnies). They then saw two familiarization trials with three animals, in which each animal was associated with one item (e.g., each bunny had a bike). They were then asked to report the number of animals by pointing to the screen and counting to familiarize them with the expectations for critical trials.
 
-In each critical trial (Figure \@ref(fig:exp1-figure)), participants saw two unequal groups of animals (e.g., 5 bunnies and 7 lions), each on one side of the screen. Of these two groups, one served as the target set (whose number was queried by the experimenter), though participants were not informed which set was the target until the end of the trial. Initially, each animal was physically connected to one item (e.g., each animal wore a hat), such that animals and items stood in one-to-one correspondence (e.g., 5 bunnies – 5 blue hats vs. 7 lions – 7 red hats). Each group of animals stood with their items in a vertical line with equal spacing to facilitate element tracking and counting. The animals then put down their items and disappeared into a school. Participants were then asked for the number of one set of animals (e.g., “How many bunnies are in the school?”). We reasoned that if children believe that two equal sets  deserve the same numerical label, they should count the correct visible objects to infer the number of hidden objects (e.g., counting the bunnies’ hats to infer the number of bunnies), whereas if they do not understand this they should count the set corresponding to the second set of animals. If participants gave a response without counting, they were encouraged to ‘point and count’ (the experimenter never specified what they should count)^[Out of `r df.trial_1 %>% nrow()` total trials, there were `r df.trial_1 %>% filter(knower_level_cp_subset == "CP", is.na(set_chosen), !is.na(final_count)) %>% nrow()` trials where CP-knowers ($n$=`r df.trial_1 %>% filter(knower_level_cp_subset == "CP", is.na(set_chosen), !is.na(final_count)) %>% pull(id) %>% unique() %>% length()`) responded with a number but did not count (small sets: `r df.trial_1 %>% filter(knower_level_cp_subset == "CP", magnitude == "small", is.na(set_chosen), !is.na(final_count)) %>% nrow()`; large sets: `r df.trial_1 %>% filter(knower_level_cp_subset == "CP", magnitude == "large", is.na(set_chosen), !is.na(final_count)) %>% nrow()`), and `r df.trial_1 %>% filter(knower_level_cp_subset == "subset", is.na(set_chosen), !is.na(final_count)) %>% nrow()` trials where subset-knowers ($n$=`r df.trial_1 %>% filter(knower_level_cp_subset == "subset", is.na(set_chosen), !is.na(final_count)) %>% pull(id) %>% unique() %>% length()`) responded with a number but did not count (small sets: `r df.trial_1 %>% filter(knower_level_cp_subset == "subset", magnitude == "small", is.na(set_chosen), !is.na(final_count)) %>% nrow()`; large sets: `r df.trial_1 %>% filter(knower_level_cp_subset == "subset", magnitude == "large", is.na(set_chosen), !is.na(final_count)) %>% nrow()`)]. If counting resulted in a different response, we analyzed the final count. Participants were allowed one opportunity to fix a wrong response. 
+In each critical trial (Figure \@ref(fig:exp1-figure)), participants saw two unequal groups of animals (e.g., 5 bunnies and 7 lions), each on one side of the screen. Of these two groups, one served as the target set (whose number was queried by the experimenter), though participants were not informed which set was the target until the end of the trial. Initially, each animal was physically connected to one item (e.g., each animal wore a hat), such that animals and items stood in one-to-one correspondence (e.g., 5 bunnies – 5 blue hats vs. 7 lions – 7 red hats). Each group of animals stood with their items in a vertical line with equal spacing to facilitate element tracking and counting. The animals then put down their items and disappeared into a school. Participants were then asked for the number of one set of animals (e.g., “How many bunnies are in the school?”). We reasoned that if children believe that two equal sets  deserve the same numerical label, they should count the correct visible objects to infer the number of hidden objects (e.g., counting the bunnies’ hats to infer the number of bunnies), whereas if they do not understand this they should count the set corresponding to the second set of animals. If participants gave a response without counting, they were encouraged to ‘point and count’ (the experimenter never specified what they should count)^[Out of `r df.trial_1 %>% nrow()` total trials, there were `r df.trial_1 %>% filter(knower_level_cp_subset == "CP", is.na(set_chosen), !is.na(final_count)) %>% nrow()` trials where CP-knowers ($n$=`r df.trial_1 %>% filter(knower_level_cp_subset == "CP", is.na(set_chosen), !is.na(final_count)) %>% pull(id) %>% unique() %>% length()`) responded with a number but did not count (small sets: `r df.trial_1 %>% filter(knower_level_cp_subset == "CP", magnitude == "small", is.na(set_chosen), !is.na(final_count)) %>% nrow()`; large sets: `r df.trial_1 %>% filter(knower_level_cp_subset == "CP", magnitude == "large", is.na(set_chosen), !is.na(final_count)) %>% nrow()`), and `r df.trial_1 %>% filter(knower_level_cp_subset == "subset", is.na(set_chosen), !is.na(final_count)) %>% nrow()` trials where subset-knowers ($n$=`r df.trial_1 %>% filter(knower_level_cp_subset == "subset", is.na(set_chosen), !is.na(final_count)) %>% pull(id) %>% unique() %>% length()`) responded with a number but did not count (small sets: `r df.trial_1 %>% filter(knower_level_cp_subset == "subset", magnitude == "small", is.na(set_chosen), !is.na(final_count)) %>% nrow()`; large sets: `r df.trial_1 %>% filter(knower_level_cp_subset == "subset", magnitude == "large", is.na(set_chosen), !is.na(final_count)) %>% nrow()`).]. If counting resulted in a different response, we analyzed the final count. Participants were allowed one opportunity to fix a wrong response. 
 
 Participants saw six critical trials in total: three small-set trials where sets were less than  4 (1:2, 1:3, 2:3), and three large-set trials where sets were greater than 4 (5:7, 5:8, 6:7). Lions and bunnies were used for all trials, but they carried different kinds of items for each trial. Participants saw one out of six pseudo-randomized trial orders. Trials were counterbalanced for the target animals, side of set appearance, and which animal set is larger.
 
@@ -269,7 +269,7 @@ This task was included as a general proxy of counting experience, to allow us to
 
 ## Results 
 
-Our primary question was whether CP-knowers were more likely to succeed atprovide correct responses on the Cardinal Extension task compared to subset-knowers across both small and large sets. To test this, we asked whether children knew that to find the number of animals in the school (e.g., bunnies), they should count the items that these animals left outside the school (and which were therefore equal in number) - what we describe below as Correct Set Choice. To identify children who selected the correct set, we coded two kinds of response as correct. First,  we credited the child with a correct response if they counted the correct set. We counted these responses as correct even if the attempted count resulted in an incorrect response in order to recognize that some children might have an understanding that two equal sets deserve the same label but nevertheless make procedural counting errors (e.g., in the case of some CP-knowers). Also, this allowed for the possibility, proposed by @sarnecka2004, that a subset-knower might know that two large sets should receive the same label if they are equal, but might not be able to say how many items the sets actually contain (because they can’t yet count). Second, we also credited the child with a correct response if, despite not attempting to count, they nevertheless provided a correct numerical response. Here, we reasoned that such a response is most likely if the child has successfully identified the correct item set from which to infer the number of animals. 
+Our primary question was whether CP-knowers were more likely to provide correct responses on the Cardinal Extension task compared to subset-knowers across both small and large sets. To test this, we asked whether children knew that to find the number of animals in the school (e.g., bunnies), they should count the items that these animals left outside the school (and which were therefore equal in number) - what we describe below as Correct Set Choice. To identify children who selected the correct set, we coded two kinds of response as correct. First,  we credited the child with a correct response if they counted the correct set. We counted these responses as correct even if the attempted count resulted in an incorrect response in order to recognize that some children might have an understanding that two equal sets deserve the same label but nevertheless make procedural counting errors (e.g., in the case of some CP-knowers). Also, this allowed for the possibility, proposed by @sarnecka2004, that a subset-knower might know that two large sets should receive the same label if they are equal, but might not be able to say how many items the sets actually contain (because they can’t yet count). Second, we also credited the child with a correct response if, despite not attempting to count, they nevertheless provided a correct numerical response. Here, we reasoned that such a response is most likely if the child has successfully identified the correct item set from which to infer the number of animals. 
 
 We also included a secondary analysis to explore how often children provided a correct numerical response overall. Although children might understand cardinal extension while still making counting errors, it is nevertheless interesting to know how often children were able to provide the correct numerical response and were therefore fully adult-like (e.g., by choosing the right side, and accurately counting the available items). For this measure, we credited children if they provided the correct numerical response whether or not they pointed to the screen as part of obtaining their answer. However, if children clearly counted the wrong set (or both sets) and arrived at the correct answer through a counting error, they were not credited with a correct response. We will refer to this measure as ‘Correct Numerical Response’ in the following analysis. 
 
@@ -678,17 +678,22 @@ df.summary_1 <- df.trial_1 %>%
 
 plot_summary_set_1 <- ggplot(df.summary_1,
        aes(x = mean_correct_set_chosen,
-           fill = knower_level_cp_subset)) +
-  geom_bar(
-    position = position_dodge2(width = 1, preserve = "single"), 
-    aes(y = ..count..)) + 
-  scale_fill_manual(values=cbPalette) + 
+           color = knower_level_cp_subset, 
+           shape = knower_level_cp_subset)) +
+  geom_line(stat = 'count') + 
+  geom_point(stat = 'count',
+             size = 2) +
+  # geom_bar(
+  #   position = position_dodge2(width = 1, preserve = "single"), 
+  #   aes(y = ..count..)) + 
+  scale_color_manual(values=cbPalette) + 
   scale_x_continuous(breaks = seq(0, 1, 0.1)) +
   ylim(0, 30) +
   theme(text = element_text(size = 11)) + 
   labs(y = "Number of participants", 
        x = "Prop. of correct set choice", 
-       fill = "Knower Level")
+       color = "Knower Level", 
+       shape = "Knower Level")
 
 legend <- get_legend(
   # create some space to the left of the legend
@@ -697,16 +702,21 @@ legend <- get_legend(
 
 plot_summary_count_1 <- ggplot(df.summary_1,
        aes(x = mean_correct_count_when_correct_set_chosen,
-           fill = knower_level_cp_subset)) +
-  geom_bar(position = position_dodge2(width = 1, preserve = "single"), 
-           aes(y = ..count..)) + 
-  scale_fill_manual(values=cbPalette) + 
+           color = knower_level_cp_subset,
+           shape = knower_level_cp_subset)) +
+  geom_line(stat = 'count') + 
+  geom_point(stat = 'count',
+             size = 2) +
+  # geom_bar(position = position_dodge2(width = 1, preserve = "single"), 
+  #          aes(y = ..count..)) + 
+  scale_color_manual(values=cbPalette) + 
   scale_x_continuous(breaks = seq(0, 1, 0.1)) +
   ylim(0, 30) +
   theme(text = element_text(size = 11)) + 
   labs(y = "Number of participants", 
        x = "Prop. of correct numerical response", 
-       fill = "Knower Level")
+       color = "Knower Level", 
+       shape = "Knower Level")
 
 combined_plot <- plot_grid(
   plot_summary_set_1 + theme(legend.position = "none"),
@@ -736,6 +746,7 @@ fit.base_set_cp_1 <- glmer(correct_set_chosen ~ magnitude + age_zscored + (1|id)
                      data = df.trial_1 %>% filter(knower_level_cp_subset == "CP"), 
                      family="binomial")
 summary(fit.base_set_cp_1)
+
 fit.anova.base_set_cp_1 <- Anova(fit.base_set_cp_1, type = 3)
 
 fit.base_set_subset_1 <- glmer(correct_set_chosen ~ magnitude + age_zscored + (1|id)
@@ -788,7 +799,7 @@ fit.compare.cp_age_set_within_kl_1 <- anova(fit.cp_age_set_within_kl_1, fit.base
 
 ```
 
-```{r exp1-plot, fig.cap = "Each dot represents a participant. The width of the shaded area of violin plots represents the proportion of the data located there. A) Proportion of correct item set choice by participant against knower level. Horizontal dashed line indicates performance at chance = 0.50. B) Proportion of correct numerical response by participant against knower level.", fig.height = 4, include = T}
+```{r exp1-plot, fig.cap = "Each dot represents a participant. The width of the shaded area of violin plots represents the proportion of the data located there. Error bars represent bootstrapped 95% CIs. A) Proportion of correct item set choice by participant against knower level. Horizontal dashed line indicates performance at chance = 0.50. B) Proportion of correct numerical response by participant against knower level.", fig.height = 4, include = T}
 plot1 <- ggplot(data = df.trial_1 %>%
          mutate(magnitude = factor(magnitude, levels = c("small", "large"), labels = c("small sets", "large sets")), 
                          knower_level_cp_subset = factor(knower_level_cp_subset, levels = c("subset", "CP"))) %>%
@@ -831,7 +842,7 @@ plot_grid(combined_plot, ncol=1,rel_heights = c(1, .1))
 ```
 
 In order to further analyze the effect of CP knowledge on cardinal extension performance as measured by Correct Set Choice, we constructed a generalized linear mixed-effects models (GLMM) with the formula Correct Set Choice (0/1) ~ Age (z-scored) + Set Size (Small / Large) + (1 | Participant) + (1 | Trial), and tested whether adding children’s Knower Level (CP / Subset) and Knower Level * Set Size interaction improved the fit of the model. All models included by-subject and by-item random intercepts. 
-Our base model showed a significant effect of age (`r print_coeff(fit.base_set_1, "age_zscored")`), with older children performing better than younger children. However, set size (small vs large sets) did not further explain variation in performance (`r print_model_comp_p(fit.anova.base_set_1, "magnitude")`). Exploratory models analyzing subset-knowers and CP-knowers separately showed that this age effect was driven by only subset-knowers (`r print_coeff(fit.base_set_subset_1, "age_zscored")`). Age did not predict performance in the CP-knower group (`r print_coeff_p(fit.base_set_cp_1, "age_zscored")`).  Adding Knower Level as a predictor significantly improved the fit of the model (`r print_model_comp(fit.compare.cp_age_set_1, "fit.cp_age_set_1")`, `r print_model_fit(fit.cp_age_set_1, fit.base_set_1)`), and revealed that CP-knowers were significantly more likely than subset-knowers to select the correct set, even when controlling for age (`r print_coeff(fit.cp_age_set_1, "knower_level_cp_subsetCP", "$_{CP}$")`). This model also showed a significant effect of age (`r print_coeff(fit.cp_age_set_1, "age_zscored")`) but not of set size  (`r print_model_comp_p(fit.anova.cp_age_set_1, "magnitude")`)^[As suggested by an anonymous reviewer, we conducted a *post hoc* analysis with the same models, but removed any trials with sets beyond a particular subset-knower’s knower level. Results were qualitatively similar. One difference was that Knower Level no longer surpassed the threshold of $p$ < .05 (`r print_model_comp_p(fit.anova.cp_age_set_within_kl_1, "knower_level_cp_subset")`), and adding Knower Level similarly no longer improved the base mode (`r print_model_comp_p(fit.compare.cp_age_set_within_kl_1, "fit.cp_age_set_within_kl_1")`). Considering that in this analysis, CP-knowers still performed significantly better than subset-knowers (see t-tests reported above), we suspect this discrepancy in the regression models is due to the great difference in number of data points from CP-knowers and subset-knowers, and does not indicate a lack of difference between CP- and subset-knowers. Additionally, in this case we did not conduct any analysis involving the Knower Level * Set Size interaction, because the subset-knowers would only contribute small trials and no large trials.]. 
+Our base model showed a significant effect of age (`r print_coeff(fit.base_set_1, "age_zscored")`), with older children performing better than younger children. However, set size (small vs large sets) did not further explain variation in performance (`r print_model_comp_p(fit.anova.base_set_1, "magnitude")`). Exploratory models analyzing subset-knowers and CP-knowers separately showed that this age effect was driven by only subset-knowers (`r print_coeff(fit.base_set_subset_1, "age_zscored")`). Age did not predict performance in the CP-knower group (`r print_coeff_p(fit.base_set_cp_1, "age_zscored")`).  Adding Knower Level as a predictor significantly improved the fit of the model (`r print_model_comp(fit.compare.cp_age_set_1, "fit.cp_age_set_1")`, `r print_model_fit(fit.cp_age_set_1, fit.base_set_1)`), and revealed that CP-knowers were significantly more likely than subset-knowers to select the correct set, even when controlling for age (`r print_coeff(fit.cp_age_set_1, "knower_level_cp_subsetCP", "$_{CP}$")`). This model also showed a significant effect of age (`r print_coeff(fit.cp_age_set_1, "age_zscored")`) but not of set size  (`r print_model_comp_p(fit.anova.cp_age_set_1, "magnitude")`)^[As suggested by an anonymous reviewer, we conducted a *post hoc* analysis with the same models, but removed any trials with sets beyond a particular subset-knower’s knower level. Results were qualitatively similar. One difference was that Knower Level no longer surpassed the threshold of $p$ < .05 (`r print_model_comp_p(fit.anova.cp_age_set_within_kl_1, "knower_level_cp_subset")`), and adding Knower Level no longer improved the base model (`r print_model_comp_p(fit.compare.cp_age_set_within_kl_1, "fit.cp_age_set_within_kl_1")`). Considering that in this analysis, CP-knowers still performed significantly better than subset-knowers (see t-tests reported above), we suspect this discrepancy in the regression models is due to the great difference in number of data points from CP-knowers and subset-knowers, and does not indicate a lack of difference between CP- and subset-knowers. Additionally, in this case we did not conduct any analysis involving the Knower Level * Set Size interaction, because the subset-knowers would only contribute small trials and no large trials.]. 
 These main effects are illustrated in Figure \@ref(fig:exp1-plot)A. Adding Knower Level * Set Size interaction did not further improve the model (`r print_model_comp(fit.compare.cp_age_int_set_1, "fit.cp_age_int_set_1")`, `r print_model_fit(fit.cp_age_int_set_1, fit.cp_age_set_1)`). 
 
 ```{r study1 - count - CP variability}
@@ -983,7 +994,33 @@ check_collinearity(fit.cp_age_int_count_1_hc_only_cp)
 fit.compare.cp_age_int_count_1_hc_only_cp <- anova(fit.cp_age_int_count_1_hc_only_cp, fit.cp_age_int_count_1_hc_comp_only_cp, type=3)
 ```
 
-As an exploratory analysis, we investigated whether children’s Highest Count explained further variability in our data, by adding it as a fixed effect to the best-performing models from the two analysis approaches above. `r df.ppt_1 %>% filter(!is.na(highest_count)) %>% pull(id) %>% length() %>% printnum(., numerals = F, capitalize = T)`children (out of `r df.ppt_1 %>% pull(id) %>% length()`) provided a Highest Count. As expected, CP-knowers ($M_{HC}$ = `r df.hc_summary_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(mean_hc) %>% force_decimals()` [`r df.hc_summary_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(min_hc)`; `r df.hc_summary_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(max_hc)`]; $SD_{HC}$ = `r df.hc_summary_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(sd_hc) %>% force_decimals()`) generally performed better in this task compared to subset-knowers  ($M_{HC}$ = `r df.hc_summary_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(mean_hc) %>% force_decimals()` [`r df.hc_summary_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(min_hc)`; `r df.hc_summary_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(max_hc)`]; $SD_{HC}$ = `r df.hc_summary_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(sd_hc) %>% force_decimals()`). After excluding the `r df.ppt_1 %>% filter(is.na(highest_count)) %>% pull(id) %>% length() %>% printnum(., numerals = F, capitalize = F)` children who did not provide a Highest Count (all subset-knowers), we found that adding Highest Count did not explain additional variability for either Correct Set (`r print_model_comp(fit.compare.cp_age_set_1_hc, "fit.cp_age_set_1_hc")`, `r print_model_fit(fit.cp_age_set_1_hc, fit.cp_age_set_1_hc_comp)`) or Correct Numerical Response (`r print_model_comp(fit.compare.cp_age_int_count_1_hc, "fit.cp_age_int_count_1_hc")`, `r print_model_fit(fit.cp_age_int_count_1_hc, fit.cp_age_int_count_1_hc_comp)`). When we limited this analysis to only CP-knowers, Highest Count also did not explain additional variation in the observed performance ($p$s > .05). In all models, Highest Count showed low multicollinearity with other predictors [Variance Inflation Factor < 2, following the threshold established by @james2013]^[We thank a reviewer for suggesting this *post hoc* analysis.].
+```{r exp1-hc-plot, fig.cap = "Participants’ average Highest Count by performance in the Correct Set Choice measure.", fig.height = 4, include = T}
+ggplot(df.trial_1 %>%
+         filter(!is.na(highest_count)) %>%
+         group_by(id, knower_level_cp_subset, highest_count) %>%
+         summarise(sum_correct_set_chosen = sum(correct_set_chosen)), 
+       aes(x = sum_correct_set_chosen, 
+           y = highest_count, 
+           fill = knower_level_cp_subset)) +
+  stat_summary(fun.y = "mean",
+               geom = "col", 
+               position = position_dodge2(width = 0.9, preserve = "single")) +
+    stat_summary(aes(label= apa_num(round(..y..,2))),
+               fun.y=mean, geom="text",
+               size=3.5,
+             vjust = -0.5,
+             show.legend = F,
+              position = position_dodge2(width = 1)) +
+  scale_fill_manual(values=cbPalette) + 
+  scale_color_manual(values=cbPalette) + 
+    scale_x_continuous(breaks = seq(0, 6, 1)) +
+  coord_cartesian(ylim=c(0,40)) +
+  labs(y = "Average Highest Count", 
+       x = "Number of trials with Correct Set Choice (out of 6)", 
+       fill = "Knower Level")
+```
+
+As an exploratory analysis, we investigated whether children’s Highest Count explained further variability in our data, by adding it as a fixed effect to the best-performing models from the two analysis approaches above. `r df.ppt_1 %>% filter(!is.na(highest_count)) %>% pull(id) %>% length() %>% printnum(., numerals = F, capitalize = T)`children (out of `r df.ppt_1 %>% pull(id) %>% length()`) provided a Highest Count. As expected, CP-knowers ($M_{HC}$ = `r df.hc_summary_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(mean_hc) %>% force_decimals()` [`r df.hc_summary_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(min_hc)`; `r df.hc_summary_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(max_hc)`]; $SD_{HC}$ = `r df.hc_summary_1 %>% filter(knower_level_cp_subset == "CP") %>% pull(sd_hc) %>% force_decimals()`) generally performed better in this task compared to subset-knowers  ($M_{HC}$ = `r df.hc_summary_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(mean_hc) %>% force_decimals()` [`r df.hc_summary_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(min_hc)`; `r df.hc_summary_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(max_hc)`]; $SD_{HC}$ = `r df.hc_summary_1 %>% filter(knower_level_cp_subset == "subset") %>% pull(sd_hc) %>% force_decimals()`; for the distribution of Highest Count by Correct Set Choice performance, see Figure \@ref(fig:exp1-hc-plot) and Figure S1 in the supplemental material). After excluding the `r df.ppt_1 %>% filter(is.na(highest_count)) %>% pull(id) %>% length() %>% printnum(., numerals = F, capitalize = F)` children who did not provide a Highest Count (all subset-knowers), we found that adding Highest Count^[As noted by an anonymous reviewer, Highest Count might not be appropriate to use as a predictor in a GLMM. Children often count in runs, leading to certain Highest Count values being overly represented (e.g., the number before a new decade for English speakers). However, previous studies that include Highest Count as a predictor in regression models have found that it is predictive of other number knowledge [e.g., @chu2020; @davidson2012; @schneider2021]. Therefore, while this approach might not be perfect theoretically, we have reason to believe that we could use regression models to detect a relationship between Highest Count and Cardinal Extension understanding.] did not explain additional variability for either Correct Set (`r print_model_comp(fit.compare.cp_age_set_1_hc, "fit.cp_age_set_1_hc")`, `r print_model_fit(fit.cp_age_set_1_hc, fit.cp_age_set_1_hc_comp)`) or Correct Numerical Response (`r print_model_comp(fit.compare.cp_age_int_count_1_hc, "fit.cp_age_int_count_1_hc")`, `r print_model_fit(fit.cp_age_int_count_1_hc, fit.cp_age_int_count_1_hc_comp)`). When we limited this analysis to only CP-knowers, Highest Count also did not explain additional variation in the observed performance ($p$s > .05). In all models, Highest Count showed low multicollinearity with other predictors [Variance Inflation Factor < 2, following the threshold established by @james2013]^[We thank a reviewer for suggesting this *post hoc* analysis.].
 
 ## Discussion
 
@@ -1102,7 +1139,7 @@ However, this was only true for small-set trials ($M$ = `r df.summary_correct_se
 
 We next examined children’s performance specifically on the off-by-one trials (Large-NR), which can only be solved correctly using one-to-one correspondence. Out of `r df.ppt_2 %>% nrow()` children tested, only `r ppt_correct_nr_2 %>% length()` (`r force_decimals(ppt_correct_nr_2 %>% length() / df.ppt_2 %>% nrow() * 100)`%) succeeded in all trials, showing some evidence of using one-to-one correspondence in extending number words^[On average, these `r ppt_correct_nr_2 %>% length()` children were slightly older and had a greater Highest Count score ($M_{age}$ = `r df.ppt_correct_nr_2 %>% pull(mean_age) %>% force_decimals()`; $M_{HC}$ = `r df.ppt_correct_nr_2 %>% pull(mean_hc) %>% force_decimals()`) compared to children who did not succeed in all trials ($M_{age}$ = `r df.ppt_not_all_correct_nr_2 %>% pull(mean_age) %>% force_decimals()`; $M_{HC}$ = `r df.ppt_not_all_correct_nr_2 %>% pull(mean_hc) %>% force_decimals()`), though due to the small number of children we could not compare these values. Note that one of these `r ppt_correct_nr_2 %>% length()` children contributed only 1 large trial with an off-by-one difference because they began counting the bunnies before the animals disappeared on the other 2 trials.].
 
-```{r exp2-plot, fig.cap = "Each dot represents a participant. The width of the shaded area of violin plots represents the proportion of the data located there. A) Proportion of correct item set choice by participant against trial type. Horizontal dashed line indicates performance at chance = 0.50. B) Proportion of correct numerical response by participant against trial type.", fig.height = 4, include = T}
+```{r exp2-plot, fig.cap = "Each dot represents a participant. The width of the shaded area of violin plots represents the proportion of the data located there. Error bars represent bootstrapped 95% CIs. A) Proportion of correct item set choice by participant against trial type. Horizontal dashed line indicates performance at chance = 0.50. B) Proportion of correct numerical response by participant against trial type.", fig.height = 4, include = T}
 plot3 <- ggplot(data = df.trial_2 %>% 
          mutate(trial_type = factor(trial_type, labels = c("small sets\n (e.g., 1:2)", "large sets,\n discriminable \n ratio (e.g., 5:10)", "large sets,\n off-by-one \n(e.g., 9:10)"))) %>%
          group_by(id, age_years, trial_type) %>%
@@ -1145,7 +1182,7 @@ combined_plot <- plot_grid(plot3, plot4, labels = c('A', 'B'))
 plot_grid(combined_plot, ncol=1,rel_heights = c(1, .1))
 ```
 
-```{r exp2-plot-var, fig.cap = "Variability in Experiment 2. All trials: A) Number of participants against proportion of correct item set choice. B) Number of participants against proportion of correct numerical response. By trial type: C) Number of participants against proportion of correct item set choice. D) Number of participants against proportion of correct numerical response.", fig.height = 7, include = T}
+```{r exp2-plot-var, fig.cap = "All trials: A) Number of participants against proportion of correct item set choice. B) Number of participants against proportion of correct numerical response. By trial type: C) Number of participants against proportion of correct item set choice. D) Number of participants against proportion of correct numerical response.", fig.height = 6, include = T}
 df.summary_2 <- df.trial_2 %>%
   group_by(id) %>%
   summarise(mean_correct_set_chosen = mean(correct_set_chosen),
@@ -1153,8 +1190,11 @@ df.summary_2 <- df.trial_2 %>%
 
 plot_summary_set_2 <- ggplot(df.summary_2,
        aes(x = mean_correct_set_chosen)) +
-  geom_bar(
-           aes(y = ..count..)) + 
+  geom_line(stat = 'count') + 
+  geom_point(stat = 'count',
+             size = 2) +
+  # geom_bar(
+  #          aes(y = ..count..)) + 
   scale_fill_manual(values=cbPalette) + 
   scale_x_continuous(breaks = seq(0, 1, 0.1)) +
   ylim(0, 20) +
@@ -1164,7 +1204,10 @@ plot_summary_set_2 <- ggplot(df.summary_2,
 
 plot_summary_count_2 <- ggplot(df.summary_2,
        aes(x = mean_correct_count_when_correct_set_chosen)) +
-  geom_bar(aes(y = ..count..)) + 
+  geom_line(stat = 'count') + 
+  geom_point(stat = 'count', 
+             size = 2) +
+  # geom_bar(aes(y = ..count..)) + 
   scale_fill_manual(values=cbPalette) + 
   scale_x_continuous(breaks = seq(0, 1, 0.1)) +
   ylim(0, 20) +
@@ -1182,22 +1225,27 @@ plot_summary_set_trial_type_2 <- ggplot(data =
                                             ungroup() %>%
          mutate(trial_type = factor(trial_type, labels = c("small sets (e.g., 1:2)", "large sets, discriminable ratio (e.g., 5:10)", "large sets, off-by-one (e.g., 9:10)"))),
        aes(x = mean_correct_set_chosen,
-           fill = trial_type)) +
-  geom_bar(position = position_dodge2(width = 1, preserve = "single"), 
-           aes(y = ..count..)) + 
-  scale_fill_manual(values=cbPalette) + 
+           color = trial_type, 
+           shape = trial_type)) +
+  geom_line(stat = 'count') + 
+  geom_point(stat = 'count', 
+             size = 2) +
+  # geom_bar(position = position_dodge2(width = 1, preserve = "single"), 
+  #          aes(y = ..count..)) + 
+  scale_color_manual(values=cbPalette) + 
   scale_x_continuous(breaks = seq(0, 1, 0.1)) +
   ylim(0, 60) +
   theme(#plot.margin = margin(b = 0), 
     text = element_text(size = 11)) + 
   labs(y = "Number of participants", 
        x = "Prop. of correct set choice",
-       fill = "Set Size and Ratio")
+       color = "Set Size and Ratio", 
+       shape = "Set Size and Ratio")
 
 legend <- get_legend(
   # create some space to the left of the legend
   plot_summary_set_trial_type_2 + 
-    guides(fill = guide_legend(nrow = 1)) 
+    guides(color = guide_legend(nrow = 1)) 
 )
 
 plot_summary_count_trial_type_2 <- ggplot(data = 
@@ -1205,17 +1253,22 @@ plot_summary_count_trial_type_2 <- ggplot(data =
                                             ungroup() %>%
          mutate(trial_type = factor(trial_type, labels = c("small sets (e.g., 1:2)", "large sets, discriminable ratio (e.g., 5:10)", "large sets, off-by-one (e.g., 9:10)"))),
        aes(x = mean_correct_count_when_correct_set_chosen, 
-           fill = trial_type)) +
-  geom_bar(position = position_dodge2(width = 1, preserve = "single"), 
-           aes(y = ..count..)) + 
-  scale_fill_manual(values=cbPalette) + 
+           color = trial_type, 
+           shape = trial_type)) +
+  geom_line(stat = 'count') + 
+  geom_point(stat = 'count', 
+             size = 2) +
+  # geom_bar(position = position_dodge2(width = 1, preserve = "single"), 
+  #          aes(y = ..count..)) + 
+  scale_color_manual(values=cbPalette) + 
   scale_x_continuous(breaks = seq(0, 1, 0.1)) +
   ylim(0, 60) +
   theme(#plot.margin = margin(b = 0), 
         text = element_text(size = 11)) + 
   labs(y = "Number of participants", 
        x = "Prop. of correct numerical response", 
-       fill = "Set Size and Ratio")
+       color = "Set Size and Ratio", 
+       shape = "Set Size and Ratio")
 
 combined_plot <- plot_grid(
   plot_summary_set_2 + theme(legend.position = "none"),
@@ -1302,11 +1355,11 @@ chisq.posthoc.test(df.error_chisq, round = 3)
 apa_table(
   df.error_table,
   caption = "Distribution of responses in Large-DR and Large-NR trials.",
-  align = c("m{6cm}", rep("m{4.5cm}", 2)),
+  #align = c("m{5.75cm}", rep("m{4.75cm}", 2)),
   #align = paste0("m{", 1/(ncol(df.error_table) + 1), "\\linewidth}"),
   col.names = c("Type of responses", 
-                "Large trials with discriminable ratios",
-                "Large trials with an off-by-one difference"),
+                "Large trials with discriminable ratios\n (Large-DR)",
+                "Large trials with an off-by-one difference\n (Large-NR)"),
   col_spanners = list("Number and Percentage of Trials per Trial Type" = c(2,3))
 )
 ```
@@ -1399,7 +1452,7 @@ fit.trial_type_count_2_hc_comp <- glmer(correct_count_when_correct_set_chosen ~ 
                           data = df.trial_2 %>%
                             filter(!is.na(highest_count)), family="binomial")
 
-fit.trial_type_count_2_hc <- glmer(correct_count_when_correct_set_chosen ~ highest_count + trial_type + age_zscored + (1|id) 
+fit.trial_type_count_2_hc <- glmer(correct_count_when_correct_set_chosen ~ scale(highest_count) + trial_type + age_zscored + (1|id) 
                                    #+ (1|trial_ratio)
                                    , 
                           data = df.trial_2 %>%
@@ -1411,8 +1464,29 @@ check_collinearity(fit.trial_type_count_2_hc)
 fit.compare.trial_type_count_2_hc <- anova(fit.trial_type_count_2_hc, fit.trial_type_count_2_hc_comp, type=3)
 ```
 
-As an exploratory analysis, we added children’s Highest Count as a fixed effect to the best-performing models from the two analysis approaches above. `r df.ppt_2 %>% filter(!is.na(highest_count)) %>% nrow() %>% printnum(., numerals = F, capitalize = T)` children (out of `r df.ppt_2 %>% nrow()`) provided a Highest Count, and performed similarly to the CP-knowers from Experiment 1 ($M_{HC}$ = `r df.hc_summary_2 %>% pull(mean_hc) %>% force_decimals()` [`r df.hc_summary_2 %>% pull(min_hc)`; `r df.hc_summary_2 %>% pull(max_hc)`]; $SD_{HC}$ = `r df.hc_summary_2 %>% pull(sd_hc) %>% force_decimals()`). After excluding data from the `r df.ppt_2 %>% filter(is.na(highest_count)) %>% nrow() %>% printnum(., numerals = F)` children who did not provide a Highest Count, we found the same pattern as in Experiment 1: Highest Count did not explain additional variability for either Correct Set (`r print_model_comp(fit.compare.trial_type_set_2_hc, "fit.trial_type_set_2_hc")`, `r print_model_fit(fit.trial_type_set_2_hc, fit.trial_type_set_2_hc_comp)`) or Correct Numerical Response (`r print_model_comp(fit.compare.trial_type_count_2_hc, "fit.trial_type_count_2_hc")`, `r print_model_fit(fit.trial_type_count_2_hc, fit.trial_type_count_2_hc_comp)`). Similar to Experiment 1, Highest Count showed low multicollinearity with other predictors [Variance Inflation Factor < 2, following the threshold established by @james2013].
+As an exploratory analysis, we added children’s Highest Count as a fixed effect to the best-performing models from the two analysis approaches above. `r df.ppt_2 %>% filter(!is.na(highest_count)) %>% nrow() %>% printnum(., numerals = F, capitalize = T)` children (out of `r df.ppt_2 %>% nrow()`) provided a Highest Count, and performed similarly to the CP-knowers from Experiment 1 ($M_{HC}$ = `r df.hc_summary_2 %>% pull(mean_hc) %>% force_decimals()` [`r df.hc_summary_2 %>% pull(min_hc)`; `r df.hc_summary_2 %>% pull(max_hc)`]; $SD_{HC}$ = `r df.hc_summary_2 %>% pull(sd_hc) %>% force_decimals()`; for the distribution of Highest Count by Correct Set Choice performance, see Figure \@ref(fig:exp2-hc-plot) and Figure S2 in supplemental material). After excluding data from the `r df.ppt_2 %>% filter(is.na(highest_count)) %>% nrow() %>% printnum(., numerals = F)` children who did not provide a Highest Count, we found the same pattern as in Experiment 1: Highest Count did not explain additional variability for either Correct Set (`r print_model_comp(fit.compare.trial_type_set_2_hc, "fit.trial_type_set_2_hc")`, `r print_model_fit(fit.trial_type_set_2_hc, fit.trial_type_set_2_hc_comp)`) or Correct Numerical Response (`r print_model_comp(fit.compare.trial_type_count_2_hc, "fit.trial_type_count_2_hc")`, `r print_model_fit(fit.trial_type_count_2_hc, fit.trial_type_count_2_hc_comp)`). Similar to Experiment 1, Highest Count showed low multicollinearity with other predictors [Variance Inflation Factor < 2, following the threshold established by @james2013].
 
+```{r exp2-hc-plot, fig.cap = "Participants’ average Highest Count by performance in the Correct Set Choice measure.", fig.height = 4, include = T}
+ggplot(df.trial_2 %>%
+         filter(!is.na(highest_count)) %>%
+         group_by(id, highest_count) %>%
+         summarise(sum_correct_set_chosen = sum(correct_set_chosen)), 
+       aes(x = sum_correct_set_chosen, 
+           y = highest_count)) +
+  stat_summary(fun.y = "mean",
+               geom = "col", 
+               position = position_dodge2(width = 0.9, preserve = "single")) +
+  stat_summary(aes(label= apa_num(round(..y..,2))),
+               fun.y=mean, geom="text",
+               size=3.5,
+             vjust = -0.5,
+             show.legend = F,
+              position = position_dodge2(width = 1)) +
+    scale_x_continuous(breaks = seq(0, 9, 1)) +
+  coord_cartesian(ylim=c(0,40)) +
+  labs(y = "Average Highest Count", 
+       x = "Number of trials with Correct Set Choice (out of 9)")
+```
 
 ```{r exp2.1 - get data}
 df.ppt_2.1 <- read.csv('../../../data/exp2/PROCESSED_DATA/exp2.1_ppt.csv')
